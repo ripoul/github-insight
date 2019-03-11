@@ -1,10 +1,5 @@
 const fs = require('fs');
-
-if (typeof localStorage === "undefined" || localStorage === null) {
-  var LocalStorage = require('node-localstorage').LocalStorage;
-  localStorage = new LocalStorage('./scratch');
-}
-
+const {traitement} = require('./get');
 var Mustache = require("mustache")
 
 var express = require("express"),
@@ -20,21 +15,20 @@ var githubOAuth = require('github-oauth')({
   callbackURI: '/auth/github/callback'
 })
 
+var clientToken;
+
 function checkAuthentication(req,res,next){
-  if(localStorage.getItem("token")){
+  if(clientToken != undefined){
       next();
   } else{
       res.redirect("/auth/github");
   }
 }
-
 app.get("/auth/github", function(req, res){
-  console.log("started oauth");
   return githubOAuth.login(req, res);
 });
 
 app.get("/auth/github/callback", function(req, res){
-  console.log("received callback");
   return githubOAuth.callback(req, res);
 });
 
@@ -43,7 +37,8 @@ githubOAuth.on('error', function(err) {
 })
 
 githubOAuth.on('token', function(token, serverResponse) {
-  localStorage.setItem('token',token)
+  clientToken = token.access_token;
+  serverResponse.redirect("/demandeFichier");
 })
 
 app.get('/demandeFichier',checkAuthentication,function(req,res){
@@ -51,9 +46,18 @@ app.get('/demandeFichier',checkAuthentication,function(req,res){
     username: "",
     email:""
   };
-   
   var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
   res.end(output)
+});
+
+//username=Joe&email=jls.lebris%40apojg&organization=ugi
+app.get('/traitementDemande',checkAuthentication,function(req,res){
+  username = req.query.username
+  email = req.query.email
+  orga = req.query.organization
+  traitement(username, email, clientToken, orga)
+
+  res.end("ok")
 });
 
 var server = app.listen(port, function() {

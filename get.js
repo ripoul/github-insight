@@ -1,12 +1,37 @@
 var nodemailer = require('nodemailer');
 
-(async function(githubId, githubToken, githubOrganization) {
+async function traitement(githubId, email, githubToken, githubOrganization) {
   const config = require('dotenv').config()
   const httpie = require('httpie')
   const fs = require('fs')
   const path = require('path')
   const { default: ApolloClient, gql } = require('apollo-boost')
   const ProgressBar = require('progress')
+
+  function sendMailWhenFinish(idDemande, emailDemande){
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'jls.lebris@gmail.com',
+        pass: 'dkkgvbejgoecqyjv'
+      }
+    });
+  
+    var mailOptions = {
+      from: 'jls.lebris@gmail.com',
+      to: emailDemande,
+      subject: 'Sending Email using Node.js',
+      text: 'demande completé ! Vous pouvez voir le resultat à cette adresse : '+idDemande
+    };
+  
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  }
 
   const client = new ApolloClient({
     uri: `https://api.github.com/graphql?access_token=${githubToken}`,
@@ -74,7 +99,7 @@ var nodemailer = require('nodemailer');
   const organization = await getOrganizationRepositories(githubOrganization)
   fs.writeFileSync(path.join(__dirname, 'organization.json'), JSON.stringify(organization, undefined, 2))
 
-  sendMailWhenFinish(54486, 'jls.lebris@gmail.com')
+  sendMailWhenFinish(54486, email)
 
   async function getRateLimit() {
     const response = await client
@@ -197,30 +222,6 @@ var nodemailer = require('nodemailer');
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-})()
-
-
-function sendMailWhenFinish(idDemande, emailDemande){
-var transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'jls.lebris@gmail.com',
-    pass: 'dkkgvbejgoecqyjv'
-  }
-});
-
-var mailOptions = {
-  from: 'jls.lebris@gmail.com',
-  to: emailDemande,
-  subject: 'Sending Email using Node.js',
-  text: 'demande completé ! Vous pouvez voir le resultat à cette adresse : '+idDemande
-};
-
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
-    console.log(error);
-  } else {
-    console.log('Email sent: ' + info.response);
-  }
-});
 }
+
+module.exports.traitement = traitement;
