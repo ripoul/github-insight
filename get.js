@@ -1,16 +1,12 @@
 var nodemailer = require('nodemailer');
 
-(async function() {
+(async function(githubId, githubToken, githubOrganization) {
   const config = require('dotenv').config()
   const httpie = require('httpie')
   const fs = require('fs')
   const path = require('path')
   const { default: ApolloClient, gql } = require('apollo-boost')
   const ProgressBar = require('progress')
-
-  const githubId = process.env.GITHUB_ID
-  const githubToken = process.env.GITHUB_OAUTH
-  const githubOrganization = process.argv[2]
 
   const client = new ApolloClient({
     uri: `https://api.github.com/graphql?access_token=${githubToken}`,

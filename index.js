@@ -1,3 +1,10 @@
+if (typeof localStorage === "undefined" || localStorage === null) {
+  var LocalStorage = require('node-localstorage').LocalStorage;
+  localStorage = new LocalStorage('./scratch');
+}
+
+var Mustache = require("mustache")
+
 var express = require("express"),
     app = express(),
     config = require("./config.js")
@@ -10,6 +17,14 @@ var githubOAuth = require('github-oauth')({
   loginURI: '/auth/github',
   callbackURI: '/auth/github/callback'
 })
+
+function checkAuthentication(req,res,next){
+  if(localStorage.getItem("token")){
+      next();
+  } else{
+      res.redirect("/auth/github");
+  }
+}
 
 app.get("/auth/github", function(req, res){
   console.log("started oauth");
@@ -26,8 +41,17 @@ githubOAuth.on('error', function(err) {
 })
 
 githubOAuth.on('token', function(token, serverResponse) {
-  serverResponse.end(JSON.stringify(token))
+  localStorage.setItem('token',token)
 })
+
+app.get('/demandeFichier',checkAuthentication,function(req,res){
+  var view = {
+    username: "Joe",
+  };
+   
+  var output = Mustache.render("bonjour : {{username}}", view);
+  res.end(output)
+});
 
 var server = app.listen(port, function() {
   console.log('Listening on port %d', server.address().port);
