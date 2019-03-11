@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 if (typeof localStorage === "undefined" || localStorage === null) {
   var LocalStorage = require('node-localstorage').LocalStorage;
   localStorage = new LocalStorage('./scratch');
@@ -43,13 +45,14 @@ githubOAuth.on('error', function(err) {
 githubOAuth.on('token', function(token, serverResponse) {
   localStorage.setItem('token',token)
 })
-
+Joe
 app.get('/demandeFichier',checkAuthentication,function(req,res){
   var view = {
-    username: "Joe",
+    username: "",
+    email:""
   };
    
-  var output = Mustache.render("bonjour : {{username}}", view);
+  var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
   res.end(output)
 });
 

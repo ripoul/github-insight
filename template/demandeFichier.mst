@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Formulaire de demande d'annalyse</title>
+</head>
+<body>
+    Bienvenue {{ username }} ! <br>
+
+    Pour demander une annalyse de votre organisation github merci vérifier/remplir les champs ci-apres : <br>
+    <form action="/traitementDemande">
+    Username (@) github: <input type="text" name="username" value="{{ username }}"><br>
+    email : <input type="text" name="email" value="{{ email }}"> <br>
+    organization : <input type="text" name="organization" value=""> <br>
+    <input type="submit" value="Submit">
+    </form> 
+
+</body>
+</html>
