@@ -45,7 +45,7 @@ githubOAuth.on('error', function(err) {
 githubOAuth.on('token', function(token, serverResponse) {
   localStorage.setItem('token',token)
 })
-Joe
+
 app.get('/demandeFichier',checkAuthentication,function(req,res){
   var view = {
     username: "",
