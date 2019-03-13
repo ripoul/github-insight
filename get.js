@@ -1,27 +1,29 @@
 var nodemailer = require('nodemailer');
+const uuidv1 = require('uuid/v1');
+const httpie = require('httpie')
+const fs = require('fs')
+const path = require('path')
+const { default: ApolloClient, gql } = require('apollo-boost')
+const ProgressBar = require('progress')
+const config = require("./config.js")
 
 async function traitement(githubId, email, githubToken, githubOrganization) {
-  const config = require('dotenv').config()
-  const httpie = require('httpie')
-  const fs = require('fs')
-  const path = require('path')
-  const { default: ApolloClient, gql } = require('apollo-boost')
-  const ProgressBar = require('progress')
+  var key = uuidv1(); 
 
-  function sendMailWhenFinish(idDemande, emailDemande){
+  function sendMailWhenFinish(emailDemande){
     var transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: config.email.service,
       auth: {
-        user: 'jls.lebris@gmail.com',
-        pass: 'dkkgvbejgoecqyjv'
+        user: config.email.user,
+        pass: config.email.pass
       }
     });
   
     var mailOptions = {
-      from: 'jls.lebris@gmail.com',
+      from: config.email.user,
       to: emailDemande,
       subject: 'Sending Email using Node.js',
-      text: 'demande completé ! Vous pouvez voir le resultat à cette adresse : '+idDemande
+      text: 'demande completé ! Vous pouvez voir le resultat à cette adresse : '+key
     };
   
     transporter.sendMail(mailOptions, function(error, info){
@@ -93,13 +95,15 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
     }
   }
 
-  fs.writeFileSync(path.join(__dirname, 'members.json'), JSON.stringify(members, undefined, 2))
+  nameFileMembers = key + '_members.json'
+  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileMembers), JSON.stringify(members, undefined, 2))
   console.log('Members in error', JSON.stringify(membersInError, undefined, 2))
 
+  nameFileOrganization = key + '_organization.json'
   const organization = await getOrganizationRepositories(githubOrganization)
-  fs.writeFileSync(path.join(__dirname, 'organization.json'), JSON.stringify(organization, undefined, 2))
+  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileOrganization), JSON.stringify(organization, undefined, 2))
 
-  sendMailWhenFinish(54486, email)
+  sendMailWhenFinish(email)
 
   async function getRateLimit() {
     const response = await client

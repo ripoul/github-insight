@@ -50,7 +50,6 @@ app.get('/demandeFichier',checkAuthentication,function(req,res){
   res.end(output)
 });
 
-//username=Joe&email=jls.lebris%40apojg&organization=ugi
 app.get('/traitementDemande',checkAuthentication,function(req,res){
   username = req.query.username
   email = req.query.email
