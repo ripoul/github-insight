@@ -59,6 +59,17 @@ app.get('/traitementDemande',checkAuthentication,function(req,res){
   res.end("ok")
 });
 
+app.get('/delete',checkAuthentication,function(req,res){
+  key = req.query.key
+  fs.unlink("enregistrement/"+key+"_members.json", function (err) {
+    if (err) console.log(err);
+  })
+  fs.unlink("enregistrement/"+key+"_organization.json", function (err) {
+    if (err) console.log(err);
+  })
+  res.end("done")
+});
+
 var server = app.listen(port, function() {
   console.log('Listening on port %d', server.address().port);
 });
