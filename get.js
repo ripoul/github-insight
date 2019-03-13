@@ -22,8 +22,8 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
     var mailOptions = {
       from: config.email.user,
       to: emailDemande,
-      subject: 'Sending Email using Node.js',
-      text: 'demande completé ! Vous pouvez voir le resultat à cette adresse : '+key
+      subject: '',
+      text: `demande completé ! Vous pouvez voir le resultat à cette adresse : localhost:3000/vizu?key=${key}&organization=${githubOrganization}`
     };
   
     transporter.sendMail(mailOptions, function(error, info){

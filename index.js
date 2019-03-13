@@ -1,5 +1,6 @@
 const fs = require('fs');
 const {traitement} = require('./get');
+const {getStats} = require('./stats');
 var Mustache = require("mustache")
 
 var express = require("express"),
@@ -61,6 +62,11 @@ app.get('/traitementDemande',checkAuthentication,function(req,res){
 
 app.get('/delete',checkAuthentication,function(req,res){
   key = req.query.key
+  if (!key) {
+    res.status(400).end('{"error" : "Key parameter required!"}');
+    return
+  }
+
   fs.unlink("enregistrement/"+key+"_members.json", function (err) {
     if (err) console.log(err);
   })
@@ -69,6 +75,16 @@ app.get('/delete',checkAuthentication,function(req,res){
   })
   res.end("done")
 });
+
+app.get('/vizu', function (req, res) {
+  key = req.query.key
+  organization = req.query.organization
+  if (!key || !organization) {
+    res.status(400).end('{"error" : "key or organization parameter missing!"}');
+    return
+  }
+  getStats(key, organization);
+})
 
 var server = app.listen(port, function() {
   console.log('Listening on port %d', server.address().port);

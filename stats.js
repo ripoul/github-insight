@@ -1,11 +1,11 @@
-(async function() {
-  const config = require('dotenv').config()
-  const fs = require('fs')
-  const path = require('path')
-  const chalk = require('chalk')
+const config = require('dotenv').config()
+const fs = require('fs')
+const path = require('path')
+const chalk = require('chalk')
 
-  const githubOrganization = process.argv[2]
-  const members = JSON.parse(fs.readFileSync(path.join(__dirname, 'members.json')))
+async function getStats(key, githubOrganization) {
+  nameFileMembers = 'enregistrement/'+ key + '_members.json'
+  const members = JSON.parse(fs.readFileSync(path.join(__dirname, nameFileMembers)))
   const membersWithRepositories = members.filter(member => member.repositories.length > 0)
   const repositoriesOwnedByMembers = membersWithRepositories
     .map(member => {
@@ -40,8 +40,9 @@
     .slice(0, 10)
   
   const topPrimaryLanguages = primaryLanguages.slice(0, 10)
-
-  const organizationRepositories = JSON.parse(fs.readFileSync(path.join(__dirname, 'organization.json')))
+  
+  nameFileMembers = 'enregistrement/'+ key + '_organization.json'
+  const organizationRepositories = JSON.parse(fs.readFileSync(path.join(__dirname, nameFileMembers)))
   const topPrimaryLanguagesInOrganization = organizationRepositories
     .flatMap(repository => repository.primaryLanguage)
     .filter(primaryLanguage => primaryLanguage !== null)
@@ -78,5 +79,6 @@
   Top ${githubOrganization} members repositories:\r\n{blue ${stargazersForMembersOwnedRepositories.map(([repo, count]) => `\t- ${repo}: ${count} ⭐️`).join('\r\n')}}
   `)
 
-})()
+}
 
+module.exports.getStats = getStats;
