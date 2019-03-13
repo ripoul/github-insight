@@ -1,11 +1,11 @@
-var nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 const uuidv1 = require('uuid/v1');
-const httpie = require('httpie')
-const fs = require('fs')
-const path = require('path')
-const { default: ApolloClient, gql } = require('apollo-boost')
-const ProgressBar = require('progress')
-const config = require("./config.js")
+const httpie = require('httpie');
+const fs = require('fs');
+const path = require('path');
+const { default: ApolloClient, gql } = require('apollo-boost');
+const ProgressBar = require('progress');
+const config = require("./config.js");
 
 function getUserInfo(githubToken) {
   return new Promise((resolve, reject) => {
@@ -52,10 +52,10 @@ function getUserInfo(githubToken) {
 }
 
 async function traitement(githubId, email, githubToken, githubOrganization) {
-  var key = uuidv1(); 
+  let key = uuidv1();
 
   function sendMailWhenFinish(emailDemande){
-    var transporter = nodemailer.createTransport({
+    let transporter = nodemailer.createTransport({
       service: config.email.service,
       auth: {
         user: config.email.user,
@@ -63,11 +63,11 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
       }
     });
   
-    var mailOptions = {
+    let mailOptions = {
       from: config.email.user,
       to: emailDemande,
-      subject: 'Sending Email using Node.js',
-      text: 'demande completé ! Vous pouvez voir le resultat à cette adresse : '+key
+      subject: 'github insight demande fini',
+      text: `demande completé ! Vous pouvez voir le resultat à cette adresse : http://localhost:3000/vizu?key=${key}&organization=${githubOrganization}`
     };
   
     transporter.sendMail(mailOptions, function(error, info){
@@ -82,72 +82,72 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
   const client = new ApolloClient({
     uri: `https://api.github.com/graphql?access_token=${githubToken}`,
     fetch: async (uri, options) => {
-      const { method } = options
-      options.family = 4
+      const { method } = options;
+      options.family = 4;
       options.headers = {
         ...options.headers,
         'User-Agent': githubId
-      }
-      const res = await httpie.send(method, uri, options)
+      };
+      const res = await httpie.send(method, uri, options);
       return {
         text: async () => JSON.stringify(res.data),
         json: async () => res.data,
-      }
+      };
     },
-  })
+  });
 
-  let members
+  let members;
   try {
-    members = await getMembers()
+    members = await getMembers();
   } catch(e) {
-    console.error('Error while fetching members', JSON.stringify(e, undefined, 2))
-    process.exit(0)
+    console.error('Error while fetching members', JSON.stringify(e, undefined, 2));
+    process.exit(0);
   }
-  console.log(`Numbers of members: ${members.length}`)
-  const membersInError = []
-  const getOrganizationRepositories = makeGetRepositories('organization')
-  const getMemberRepositories = makeGetRepositories('user')
+  console.log(`Number of members: ${members.length}`);
+  const membersInError = [];
+  const getOrganizationRepositories = makeGetRepositories('organization');
+  const getMemberRepositories = makeGetRepositories('user');
 
   const bar = new ProgressBar('downloading [:bar] :login (:percent)', {
     complete: '=',
     incomplete: ' ',
     width: 50,
     total: members.length
-  })
+  });
 
   for (member of members) {
-    await sleep(25)
+    await sleep(25);
     try {
-      bar.tick({ login: member.login })
-      member.repositories = await getMemberRepositories(member.login)
+      bar.tick({ login: member.login });
+      member.repositories = await getMemberRepositories(member.login);
     } catch (e) {
-      console.log('Error while fetching repositories', e)
-      member.repositories = []
-      membersInError.push(member.login)
+      console.log('Error while fetching repositories', e);
+      member.repositories = [];
+      membersInError.push(member.login);
     }
 
     for(repository of member.repositories) {
-      await sleep(25)
+      await sleep(25);
       try {
-        repository.contributors = await getRepositoryContributors(repository.owner.login, repository.name)
+        repository.contributors = await getRepositoryContributors(repository.owner.login, repository.name);
       } catch(e) {
-        console.log('member', member)
-        console.log('repository', repository)
-        console.log('Error while fetching contributors', e)
-        repository.contributors = []
+        console.log('member', member);
+        console.log('repository', repository);
+        console.log('Error while fetching contributors', e);
+        repository.contributors = [];
       }
     }
   }
 
-  nameFileMembers = key + '_members.json'
-  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileMembers), JSON.stringify(members, undefined, 2))
-  console.log('Members in error', JSON.stringify(membersInError, undefined, 2))
+  nameFileMembers = key + '_members.json';
+  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileMembers), JSON.stringify(members, undefined, 2));
+  console.log('Members in error', JSON.stringify(membersInError, undefined, 2));
 
-  nameFileOrganization = key + '_organization.json'
-  const organization = await getOrganizationRepositories(githubOrganization)
-  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileOrganization), JSON.stringify(organization, undefined, 2))
+  nameFileOrganization = key + '_organization.json';
+  const organization = await getOrganizationRepositories(githubOrganization);
+  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileOrganization), JSON.stringify(organization, undefined, 2));
 
-  sendMailWhenFinish(email)
+  sendMailWhenFinish(email);
 
   async function getRateLimit() {
     const response = await client
@@ -163,8 +163,8 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
             }
           }
         `
-      })
-    return response.data.rateLimit
+      });
+    return response.data.rateLimit;
   }
 
   async function getRepositoryContributors(owner, repository) {
@@ -173,11 +173,11 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
         'GET',
         `https://api.github.com/repos/${owner}/${repository}/stats/contributors?access_token=${githubToken}`,
         { headers: { 'User-Agent': githubId } }
-      )
-      return res.data
+      );
+      return res.data;
     } catch(e) {
-      console.log(e)
-      process.exit(0)
+      console.log(e);
+      process.exit(0);
     }
   }
 
@@ -187,9 +187,9 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
       let repositoriesEdges = []
 
       do {
-        const repositoriesCursor = repositoriesEdges.length ? repositoriesEdges[repositoriesEdges.length - 1].cursor : ''
+        const repositoriesCursor = repositoriesEdges.length ? repositoriesEdges[repositoriesEdges.length - 1].cursor : '';
 
-        await sleep(25)
+        await sleep(25);
 
         const response = await client
           .query({
@@ -218,26 +218,26 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
                 }
               }
             `
-          })
+          });
 
         repositoriesEdges = response.data[field].repositories.edges
         if (repositoriesEdges.length) {
           const currentBatch = repositoriesEdges.map(edge => edge.node)
           result = [...result, ...currentBatch]
         }
-      } while(repositoriesEdges.length > 0)
+      } while(repositoriesEdges.length > 0);
 
-      return result
-    }
+      return result;
+    };
   }
 
   async function getMembers() {
-    let result = []
-    let membersEdges = []
+    let result = [];
+    let membersEdges = [];
 
     do {
-      const membersCursor = membersEdges.length ? membersEdges[membersEdges.length - 1].cursor : ''
-      await sleep(25)
+      const membersCursor = membersEdges.length ? membersEdges[membersEdges.length - 1].cursor : '';
+      await sleep(25);
       const response = await client
         .query({
           query: gql`
@@ -255,16 +255,16 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
               }
             }
           `
-        })
+        });
 
-      membersEdges = response.data.organization.membersWithRole.edges
+      membersEdges = response.data.organization.membersWithRole.edges;
       if (membersEdges.length) {
-        const currentBatch = membersEdges.map(edge => edge.node)
-        result = [...result, ...currentBatch]
+        const currentBatch = membersEdges.map(edge => edge.node);
+        result = [...result, ...currentBatch];
       }
-    } while(membersEdges.length > 0)
+    } while(membersEdges.length > 0);
 
-    return result
+    return result;
   }
 
   function sleep(ms) {
