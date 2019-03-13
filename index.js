@@ -83,7 +83,7 @@ app.get('/vizu', function (req, res) {
     res.status(400).end('{"error" : "key or organization parameter missing!"}');
     return
   }
-  getStats(key, organization);
+  res.status(200).end(getStats(key, organization));
 })
 
 var server = app.listen(port, function() {

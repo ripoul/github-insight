@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
 
-async function getStats(key, githubOrganization) {
+function getStats(key, githubOrganization) {
   nameFileMembers = 'enregistrement/'+ key + '_members.json'
   const members = JSON.parse(fs.readFileSync(path.join(__dirname, nameFileMembers)))
   const membersWithRepositories = members.filter(member => member.repositories.length > 0)
@@ -78,6 +78,35 @@ async function getStats(key, githubOrganization) {
   Top languages:\r\n{blue ${topPrimaryLanguages.map(([language, count]) => `\t- ${language}: ${count}`).join('\r\n')}}
   Top ${githubOrganization} members repositories:\r\n{blue ${stargazersForMembersOwnedRepositories.map(([repo, count]) => `\t- ${repo}: ${count} ⭐️`).join('\r\n')}}
   `)
+
+  let ret = {};
+  ret.organization = githubOrganization;
+  ret.nbMembers = members.length;
+  ret.nbMembersWithRepo = membersWithRepositories.length;
+  ret.nbOrgaRepo = organizationRepositories.length;
+  ret.topLanguageOrga = topPrimaryLanguagesInOrganization.map(([language, count]) => {
+    let obj = {};
+    obj[language]=count;
+    return obj;
+  });
+  ret.orgaTopRepo = stargazersForOrganization.map(([repoName, count]) => {
+    let obj = {};
+    obj[repoName]=count;
+    return obj;
+  });
+  ret.NbRepoUserOrga = repositories.length;
+  ret.topLanguageUser = topPrimaryLanguages.map(([language, count]) => {
+    let obj = {};
+    obj[language]=count;
+    return obj;
+  });
+  ret.toMemberRepo = stargazersForMembersOwnedRepositories.map(([ind, count]) => {
+    let obj = {};
+    obj[ind]=count;
+    return obj;
+  });
+
+  return JSON.stringify(ret);
 
 }
 
