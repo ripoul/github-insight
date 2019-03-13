@@ -106,7 +106,7 @@ function getStats(key, githubOrganization) {
     return obj;
   });
 
-  return JSON.stringify(ret);
+  return ret;
 
 }
 

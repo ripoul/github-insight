@@ -83,7 +83,14 @@ app.get('/vizu', function (req, res) {
     res.status(400).end('{"error" : "key or organization parameter missing!"}');
     return;
   }
-  res.status(200).end(getStats(key, organization));
+
+  let dataView = {
+    stats: JSON.stringify(getStats(key, organization))
+  };
+
+  console.log(dataView);
+  let output = Mustache.render(fs.readFileSync("./template/vizu.mst", 'utf8'), dataView);
+  res.status(200).end(output);
 })
 
 var server = app.listen(port, function() {
