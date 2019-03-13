@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {traitement} = require('./get');
+const {traitement, getUserInfo} = require('./get');
 var Mustache = require("mustache")
 
 var express = require("express"),
@@ -44,10 +44,17 @@ githubOAuth.on('token', function(token, serverResponse) {
 app.get('/demandeFichier',checkAuthentication,function(req,res){
   var view = {
     username: "",
-    email:""
+    email: "",
   };
-  var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
-  res.end(output)
+  getUserInfo(clientToken).then((response) => {
+    view.username = response.data.viewer.login;
+    view.email = response.data.viewer.email;
+    var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
+    res.end(output);
+  }).catch(() => {
+    var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
+    res.end(output);
+  });
 });
 
 app.get('/traitementDemande',checkAuthentication,function(req,res){
