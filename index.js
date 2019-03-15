@@ -2,11 +2,23 @@ const fs = require('fs');
 const {traitement, getUserInfo} = require('./get');
 const {getStats} = require('./stats');
 const Mustache = require("mustache");
+const uuidv1 = require('uuid/v1');
 
 const express = require("express"),
     app = express(),
     config = require("./config.js")
     port = 3000;
+
+const { Client } = require('pg')
+const clientdb = new Client({
+  user: config.db.user,
+  host: config.db.host,
+  database: config.db.database,
+  password: config.db.password,
+  port: config.db.port,
+})
+
+clientdb.connect();
 
 const githubOAuth = require('github-oauth')({
   githubClient: config.GITHUB_KEY,
@@ -25,6 +37,7 @@ function checkAuthentication(req,res,next){
       res.redirect("/auth/github");
   }
 }
+
 app.get("/auth/github", function(req, res){
   return githubOAuth.login(req, res);
 });
@@ -62,8 +75,15 @@ app.get('/traitementDemande',checkAuthentication,function(req,res){
   username = req.query.username;
   email = req.query.email;
   orga = req.query.organization;
-  traitement(username, email, clientToken, orga);
-
+  key = req.query.key
+  if (!username || !email || !orga) {
+    res.status(400).end('{"error" : "username, email, orga  parameter required!"}');
+    return;
+  }
+  if (!key) {
+    key = uuidv1();
+  }  
+  traitement(key, username, email, clientToken, orga);
   res.end("ok");
 });
 
@@ -74,12 +94,7 @@ app.get('/delete',checkAuthentication,function(req,res){
     return;
   }
 
-  fs.unlink("enregistrement/"+key+"_members.json", function (err) {
-    if (err) console.log(err);
-  });
-  fs.unlink("enregistrement/"+key+"_organization.json", function (err) {
-    if (err) console.log(err);
-  });
+  //TODO refaire le delete 
   res.end("done");
 });
 
@@ -91,13 +106,23 @@ app.get('/vizu', function (req, res) {
     return;
   }
 
-  let dataView = {
-    stats: JSON.stringify(getStats(key, organization))
-  };
-
-  console.log(dataView);
-  let output = Mustache.render(fs.readFileSync("./template/vizu.mst", 'utf8'), dataView);
-  res.status(200).end(output);
+  return clientdb.query(`select * from recherche where "idClient"=$1 and organization=$2 order by date;`, [key, organization])
+  .then((result) => {
+    let data=[];
+    result.rows.forEach((row)=>{
+      obj = {
+        date:row.date,
+        analyse:getStats(row.members_json, row.organization_json, organization)
+      };
+      data.push(obj)
+    })
+    let dataView = {
+      stats: JSON.stringify(data)
+    };
+    let output = Mustache.render(fs.readFileSync("./template/vizu.mst", 'utf8'), dataView);
+    res.status(200).end(output);
+    return;
+  });
 })
 
 var server = app.listen(port, function() {

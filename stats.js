@@ -3,9 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
 
-function getStats(key, githubOrganization) {
-  nameFileMembers = 'enregistrement/'+ key + '_members.json'
-  const members = JSON.parse(fs.readFileSync(path.join(__dirname, nameFileMembers)))
+function getStats(members, organizationRepositories, githubOrganization) {
   const membersWithRepositories = members.filter(member => member.repositories.length > 0)
   const repositoriesOwnedByMembers = membersWithRepositories
     .map(member => {
@@ -41,8 +39,6 @@ function getStats(key, githubOrganization) {
   
   const topPrimaryLanguages = primaryLanguages.slice(0, 10)
   
-  nameFileMembers = 'enregistrement/'+ key + '_organization.json'
-  const organizationRepositories = JSON.parse(fs.readFileSync(path.join(__dirname, nameFileMembers)))
   const topPrimaryLanguagesInOrganization = organizationRepositories
     .flatMap(repository => repository.primaryLanguage)
     .filter(primaryLanguage => primaryLanguage !== null)

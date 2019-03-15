@@ -1,5 +1,0 @@
-sudo gcloud init
-sudo gcloud auth login
-sudo gcloud config set project github-insights-epsi
-sudo gcloud app create
-sudo gcloud app deploy -v v0

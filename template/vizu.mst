@@ -38,7 +38,7 @@
   // Top langage chart
   (function() {
     let testdata = [];
-    data.topLanguageOrga.forEach((langage) => {
+    data[data.length -1].analyse.topLanguageOrga.forEach((langage) => {
       testdata.push({
         key: Object.keys(langage)[0],
         y: langage[Object.keys(langage)[0]]

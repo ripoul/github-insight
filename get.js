@@ -1,11 +1,21 @@
 const nodemailer = require('nodemailer');
-const uuidv1 = require('uuid/v1');
 const httpie = require('httpie');
 const fs = require('fs');
 const path = require('path');
 const { default: ApolloClient, gql } = require('apollo-boost');
 const ProgressBar = require('progress');
 const config = require("./config.js");
+
+const { Client } = require('pg')
+const clientdb = new Client({
+  user: config.db.user,
+  host: config.db.host,
+  database: config.db.database,
+  password: config.db.password,
+  port: config.db.port,
+})
+
+clientdb.connect();
 
 function getUserInfo(githubToken) {
   return new Promise((resolve, reject) => {
@@ -51,9 +61,7 @@ function getUserInfo(githubToken) {
   })
 }
 
-async function traitement(githubId, email, githubToken, githubOrganization) {
-  let key = uuidv1();
-
+async function traitement(key, githubId, email, githubToken, githubOrganization) {
   function sendMailWhenFinish(emailDemande){
     let transporter = nodemailer.createTransport({
       service: config.email.service,
@@ -139,13 +147,15 @@ async function traitement(githubId, email, githubToken, githubOrganization) {
     }
   }
 
-  nameFileMembers = key + '_members.json';
-  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileMembers), JSON.stringify(members, undefined, 2));
-  console.log('Members in error', JSON.stringify(membersInError, undefined, 2));
-
-  nameFileOrganization = key + '_organization.json';
   const organization = await getOrganizationRepositories(githubOrganization);
-  fs.writeFileSync(path.join(__dirname, 'enregistrement/'+nameFileOrganization), JSON.stringify(organization, undefined, 2));
+
+  clientdb.query(`INSERT INTO public.recherche(
+    "idClient", organization, date, members_json, organization_json)
+    VALUES ($1, $2, now(), $3, $4);`, [key, githubOrganization, JSON.stringify(members), JSON.stringify(organization)], (err, res) => {
+    clientdb.end()
+  })
+  
+  console.log('Members in error', JSON.stringify(membersInError, undefined, 2));
 
   sendMailWhenFinish(email);
 
