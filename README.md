@@ -4,6 +4,8 @@ This repository is a try to get insights on an GitHub organization and its membe
 
 # How
 
+Node11 is required ! Use nvm to change node version easly. Or you can use babel.
+
 create a config.js file like that : 
 ```
 module.exports = {
