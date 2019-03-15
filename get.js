@@ -151,7 +151,12 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
 
   clientdb.query(`INSERT INTO public.recherche(
     "idClient", organization, date, members_json, organization_json)
-    VALUES ($1, $2, now(), $3, $4);`, [key, githubOrganization, JSON.stringify(members), JSON.stringify(organization)], (err, res) => {
+    VALUES ($1, $2, current_date, $3, $4)
+    ON CONFLICT ("idClient", organization, date)
+    DO
+    UPDATE
+      SET "members_json" = EXCLUDED."members_json",
+      "organization_json" = EXCLUDED."organization_json";`, [key, githubOrganization, JSON.stringify(members), JSON.stringify(organization)], (err, res) => {
     clientdb.end()
   })
   
