@@ -60,14 +60,16 @@ app.get('/demandeFichier',checkAuthentication,function(req,res){
     username: "",
     email: "",
   };
-  getUserInfo(clientToken).then((response) => {
+  return getUserInfo(clientToken).then((response) => {
     view.username = response.data.viewer.login;
     view.email = response.data.viewer.email;
     var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
     res.end(output);
+    return;
   }).catch(() => {
     var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
     res.end(output);
+    return;
   });
 });
 
@@ -85,6 +87,7 @@ app.get('/traitementDemande',checkAuthentication,function(req,res){
   }  
   traitement(key, username, email, clientToken, orga);
   res.end("ok");
+  return;
 });
 
 app.get('/delete',checkAuthentication,function(req,res){

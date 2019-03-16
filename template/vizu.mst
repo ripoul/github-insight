@@ -29,21 +29,70 @@
   </style>
 </head>
 <body>
-
-<div class="testBlock"><svg id="topLangagesChart"></svg></div>
-
+<div>
+<div class="testBlock">Top des languages des repos de l'organization : <svg id="topLangagesOrgaChart"></svg></div>
+<div class="testBlock">Top des languages des repos des users de l'organization : <svg id="topLangagesUserChart"></svg></div>
+</div>
+<div>
+<div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageJSChart"></svg></div>
+</div>
 <script>
   var data = {{{ stats }}};
 
   // Top langage chart
   (function() {
-    let testdata = [];
+    let topLanguageOrgaData = [];
     data[data.length -1].analyse.topLanguageOrga.forEach((langage) => {
-      testdata.push({
+      topLanguageOrgaData.push({
         key: Object.keys(langage)[0],
         y: langage[Object.keys(langage)[0]]
       });
     });
+
+    let topLanguageUserData = [];
+    data[data.length -1].analyse.topLanguageUser.forEach((langage) => {
+      topLanguageUserData.push({
+        key: Object.keys(langage)[0],
+        y: langage[Object.keys(langage)[0]]
+      });
+    });
+
+    let lineData;
+    let evolJSOrgaData = [];
+    let i=0;
+    data.forEach((row) => {
+      let y;
+      row.analyse.topLanguageOrga.map((obj)=>{
+        if (Object.keys(obj) == 'JavaScript') {
+          y= obj['JavaScript'];
+        }
+      })
+      evolJSOrgaData.push({x: i, y: y});
+      i++;
+    });
+    
+    let evolJSUserData = [];
+    i=0;
+    data.forEach((row) => {
+      let y;
+      row.analyse.topLanguageUser.map((obj)=>{
+        if (Object.keys(obj) == 'JavaScript') {
+          y= obj['JavaScript'];
+        }
+      })
+      evolJSUserData.push({x: i, y: y});
+      i++;
+    })
+    lineData = [{
+      values: evolJSOrgaData,      //values - represents the array of {x,y} data points
+      key: 'evolJSOrgaData', //key  - the name of the series.
+      color: '#ff7f0e'  //color - optional: choose your own line color.
+    },
+    {
+      values: evolJSUserData,      //values - represents the array of {x,y} data points
+      key: 'evolJSUserData', //key  - the name of the series.
+      color: '#2ca02c'  //color - optional: choose your own line color.
+    }]
 
     var width = 300;
     var height = 300;
@@ -59,27 +108,61 @@
           })
           ;
 
-      d3.select("#topLangagesChart")
-          .datum([testdata])
+      d3.select("#topLangagesOrgaChart")
+          .datum([topLanguageOrgaData])
           .transition().duration(1200)
           .attr('width', width)
           .attr('height', height)
           .call(chart);
-
-      // LISTEN TO CLICK EVENTS ON THE PIE CONTAINER
-      // chart.dispatch.on('chartClick', function() {
-      //   code...
-      // });
-
-      // LISTEN TO CLICK EVENTS ON THE SLICES OF THE PIE
-      // chart.dispatch.on('elementClick', function() {
-      //   code...
-      // });
-
-      // OTHER EVENTS DISPATCHED BY THE PIE INCLUDE: elementDblClick, elementMouseover, elementMouseout, elementMousemove, renderEnd
-      // @see nv.models.pie
       return chart;
     });
+
+    nv.addGraph(function() {
+      var chart = nv.models.pie()
+          .x(function(d) { return d.key; })
+          .y(function(d) { return d.y; })
+          .width(width)
+          .height(height)
+          .labelType(function(d, i, values) {
+            return values.key + ':' + values.value;
+          })
+          ;
+
+      d3.select("#topLangagesUserChart")
+          .datum([topLanguageUserData])
+          .transition().duration(1200)
+          .attr('width', width)
+          .attr('height', height)
+          .call(chart);
+      return chart;
+    });
+
+    nv.addGraph(function() {
+  var chart = nv.models.lineChart()
+                .margin({left: 100})  //Adjust chart margins to give the x-axis some breathing room.
+                .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+                .duration(350)  //how fast do you want the lines to transition?
+                .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
+                .showYAxis(true)        //Show the y-axis
+                .showXAxis(true)        //Show the x-axis
+  ;
+
+  chart.xAxis     //Chart x-axis settings
+      .axisLabel('Time (ms)')
+      .tickFormat(d3.format(',r'));
+
+  chart.yAxis     //Chart y-axis settings
+      .axisLabel('Voltage (v)')
+      .tickFormat(d3.format('.02f'));
+
+  d3.select('#EvolLangageJSChart')    //Select the <svg> element you want to render the chart in.   
+      .datum(lineData)         //Populate the <svg> element with chart data...
+      .call(chart);          //Finally, render the chart!
+
+  //Update the chart when window resizes.
+  nv.utils.windowResize(function() { chart.update() });
+  return chart;
+});
   })();
 
 </script>
