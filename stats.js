@@ -36,9 +36,9 @@ function getStats(members, organizationRepositories, githubOrganization) {
     }, [])
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
-  
+
   const topPrimaryLanguages = primaryLanguages.slice(0, 10)
-  
+
   const topPrimaryLanguagesInOrganization = organizationRepositories
     .flatMap(repository => repository.primaryLanguage)
     .filter(primaryLanguage => primaryLanguage !== null)
@@ -82,23 +82,23 @@ function getStats(members, organizationRepositories, githubOrganization) {
   ret.nbOrgaRepo = organizationRepositories.length;
   ret.topLanguageOrga = topPrimaryLanguagesInOrganization.map(([language, count]) => {
     let obj = {};
-    obj[language]=count;
+    obj[language] = count;
     return obj;
   });
   ret.orgaTopRepo = stargazersForOrganization.map(([repoName, count]) => {
     let obj = {};
-    obj[repoName]=count;
+    obj[repoName] = count;
     return obj;
   });
   ret.NbRepoUserOrga = repositories.length;
   ret.topLanguageUser = topPrimaryLanguages.map(([language, count]) => {
     let obj = {};
-    obj[language]=count;
+    obj[language] = count;
     return obj;
   });
   ret.toMemberRepo = stargazersForMembersOwnedRepositories.map(([ind, count]) => {
     let obj = {};
-    obj[ind]=count;
+    obj[ind] = count;
     return obj;
   });
 

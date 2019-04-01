@@ -1,13 +1,13 @@
 const fs = require('fs');
-const {traitement, getUserInfo} = require('./get');
-const {getStats} = require('./stats');
+const { traitement, getUserInfo } = require('./get');
+const { getStats } = require('./stats');
 const Mustache = require("mustache");
 const uuidv1 = require('uuid/v1');
 
 const express = require("express"),
-    app = express(),
-    config = require("./config.js")
-    port = 3000;
+  app = express(),
+  config = require("./config.js"),
+  port = 3000;
 
 const { Client } = require('pg')
 const clientdb = new Client({
@@ -30,32 +30,32 @@ const githubOAuth = require('github-oauth')({
 
 let clientToken;
 
-function checkAuthentication(req,res,next){
-  if(clientToken != undefined){
-      next();
-  } else{
-      res.redirect("/auth/github");
+function checkAuthentication(req, res, next) {
+  if (clientToken != undefined) {
+    next();
+  } else {
+    res.redirect("/auth/github");
   }
 }
 
-app.get("/auth/github", function(req, res){
+app.get("/auth/github", function (req, res) {
   return githubOAuth.login(req, res);
 });
 
-app.get("/auth/github/callback", function(req, res){
+app.get("/auth/github/callback", function (req, res) {
   return githubOAuth.callback(req, res);
 });
 
-githubOAuth.on('error', function(err) {
+githubOAuth.on('error', function (err) {
   console.error('there was a login error', err);
 });
 
-githubOAuth.on('token', function(token, serverResponse) {
+githubOAuth.on('token', function (token, serverResponse) {
   clientToken = token.access_token;
   serverResponse.redirect("/demandeFichier");
 });
 
-app.get('/demandeFichier',checkAuthentication,function(req,res){
+app.get('/demandeFichier', checkAuthentication, function (req, res) {
   let view = {
     username: "",
     email: "",
@@ -73,7 +73,7 @@ app.get('/demandeFichier',checkAuthentication,function(req,res){
   });
 });
 
-app.get('/traitementDemande',checkAuthentication,function(req,res){
+app.get('/traitementDemande', checkAuthentication, function (req, res) {
   username = req.query.username;
   email = req.query.email;
   orga = req.query.organization;
@@ -84,13 +84,13 @@ app.get('/traitementDemande',checkAuthentication,function(req,res){
   }
   if (!key) {
     key = uuidv1();
-  }  
+  }
   traitement(key, username, email, clientToken, orga);
   res.end("ok");
   return;
 });
 
-app.get('/delete',checkAuthentication,function(req,res){
+app.get('/delete', checkAuthentication, function (req, res) {
   key = req.query.key;
   if (!key) {
     res.status(400).end('{"error" : "Key parameter required!"}');
@@ -110,24 +110,24 @@ app.get('/vizu', function (req, res) {
   }
 
   return clientdb.query(`select * from recherche where "idClient"=$1 and organization=$2 order by date;`, [key, organization])
-  .then((result) => {
-    let data=[];
-    result.rows.forEach((row)=>{
-      obj = {
-        date:row.date,
-        analyse:getStats(row.members_json, row.organization_json, organization)
+    .then((result) => {
+      let data = [];
+      result.rows.forEach((row) => {
+        obj = {
+          date: row.date,
+          analyse: getStats(row.members_json, row.organization_json, organization)
+        };
+        data.push(obj)
+      })
+      let dataView = {
+        stats: JSON.stringify(data)
       };
-      data.push(obj)
-    })
-    let dataView = {
-      stats: JSON.stringify(data)
-    };
-    let output = Mustache.render(fs.readFileSync("./template/vizu.mst", 'utf8'), dataView);
-    res.status(200).end(output);
-    return;
-  });
+      let output = Mustache.render(fs.readFileSync("./template/vizu.mst", 'utf8'), dataView);
+      res.status(200).end(output);
+      return;
+    });
 })
 
-var server = app.listen(port, function() {
+var server = app.listen(port, function () {
   console.log('Listening on port %d', server.address().port);
 });

@@ -55,14 +55,14 @@ function getUserInfo(githubToken) {
     client.query({
       query: GET_USER,
     })
-    .then(resolve).catch((error) => {
-      console.log(error);
-    });
+      .then(resolve).catch((error) => {
+        console.log(error);
+      });
   })
 }
 
 async function traitement(key, githubId, email, githubToken, githubOrganization) {
-  function sendMailWhenFinish(emailDemande){
+  function sendMailWhenFinish(emailDemande) {
     let transporter = nodemailer.createTransport({
       service: config.email.service,
       auth: {
@@ -70,15 +70,15 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
         pass: config.email.pass
       }
     });
-  
+
     let mailOptions = {
       from: config.email.user,
       to: emailDemande,
       subject: 'github insight demande fini',
       text: `demande completé ! Vous pouvez voir le resultat à cette adresse : http://localhost:3000/vizu?key=${key}&organization=${githubOrganization}`
     };
-  
-    transporter.sendMail(mailOptions, function(error, info){
+
+    transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         console.log(error);
       } else {
@@ -107,7 +107,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
   let members;
   try {
     members = await getMembers();
-  } catch(e) {
+  } catch (e) {
     console.error('Error while fetching members', JSON.stringify(e, undefined, 2));
     process.exit(0);
   }
@@ -134,11 +134,11 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       membersInError.push(member.login);
     }
 
-    for(repository of member.repositories) {
+    for (repository of member.repositories) {
       await sleep(25);
       try {
         repository.contributors = await getRepositoryContributors(repository.owner.login, repository.name);
-      } catch(e) {
+      } catch (e) {
         console.log('member', member);
         console.log('repository', repository);
         console.log('Error while fetching contributors', e);
@@ -157,9 +157,9 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
     UPDATE
       SET "members_json" = EXCLUDED."members_json",
       "organization_json" = EXCLUDED."organization_json";`, [key, githubOrganization, JSON.stringify(members), JSON.stringify(organization)], (err, res) => {
-    clientdb.end()
-  })
-  
+      clientdb.end()
+    })
+
   console.log('Members in error', JSON.stringify(membersInError, undefined, 2));
 
   sendMailWhenFinish(email);
@@ -190,7 +190,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
         { headers: { 'User-Agent': githubId } }
       );
       return res.data;
-    } catch(e) {
+    } catch (e) {
       console.log(e);
       process.exit(0);
     }
@@ -204,8 +204,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       do {
         const repositoriesCursor = repositoriesEdges.length ? repositoriesEdges[repositoriesEdges.length - 1].cursor : '';
 
-        await sleep(25);
-
+        await sleep(50);
         const response = await client
           .query({
             query: gql`
@@ -233,6 +232,8 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
                 }
               }
             `
+          }).catch((error) => {
+            console.log(error)
           });
 
         repositoriesEdges = response.data[field].repositories.edges
@@ -240,8 +241,8 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
           const currentBatch = repositoriesEdges.map(edge => edge.node)
           result = [...result, ...currentBatch]
         }
-      } while(repositoriesEdges.length > 0);
-
+      } while (repositoriesEdges.length > 0);
+      console.log("fin async func")
       return result;
     };
   }
@@ -277,7 +278,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
         const currentBatch = membersEdges.map(edge => edge.node);
         result = [...result, ...currentBatch];
       }
-    } while(membersEdges.length > 0);
+    } while (membersEdges.length > 0);
 
     return result;
   }
