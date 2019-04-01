@@ -1,3 +1,4 @@
+const envConf = require('dotenv').config()
 const fs = require('fs');
 const { traitement, getUserInfo } = require('./get');
 const { getStats } = require('./stats');
@@ -11,14 +12,17 @@ const express = require("express"),
 
 const { Client } = require('pg')
 const clientdb = new Client({
-  user: config.db.user,
-  host: config.db.host,
-  database: config.db.database,
-  password: config.db.password,
-  port: config.db.port,
+  user: process.env.db_user,
+  host: process.env.db_host,
+  database: process.env.db_database,
+  password: process.env.db_pass,
+  port: process.env.db_port,
 })
 
-clientdb.connect();
+clientdb.connect().catch(error=>{
+  console.log(error)
+  process.exit(1);clientdb
+});
 
 const githubOAuth = require('github-oauth')({
   githubClient: config.GITHUB_KEY,

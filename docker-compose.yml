@@ -1,0 +1,45 @@
+version: "3"
+services:
+        app:
+                build:
+                        context: .
+                command: ["./wait-for-it.sh", "db:5432", "--", "npm", "start"]
+                depends_on:
+                        - db
+                links: 
+                        - db
+                restart: on-failure
+                ports:
+                        - "3000:3000"
+                environment:
+                        - db_user=user
+                        - db_host=10.5.0.3
+                        - db_database=github-insight
+                        - db_pass=password
+                        - db_port=5432
+                networks: 
+                        ETH:
+                                ipv4_address: 10.5.0.2
+        db:
+                image: postgres
+                environment:
+                        - POSTGRES_USER=user
+                        - POSTGRES_PASSWORD=password
+                        - POSTGRES_DB=github-insight
+                volumes:
+                        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+                healthcheck:
+                        test: ["CMD-SHELL", "psql -h '10.5.0.3' -U 'user' -c '\\l'"]
+                        interval: 30s
+                        timeout: 30s
+                        retries: 3
+                networks: 
+                        ETH:
+                                ipv4_address: 10.5.0.3
+networks:
+        ETH:
+                driver: bridge
+                ipam:
+                        config:
+                        - 
+                                subnet: 10.5.0.0/16
