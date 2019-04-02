@@ -40,6 +40,12 @@
         id="topLangagesUserChart"></svg></div>
   </div>
   <div>
+    <div>
+      <select id="language-select">
+        <option value="JavaScript">JavaScript</option>
+        <option value="Java">Java</option>
+      </select>
+    </div>
     <div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageJSChart"></svg></div>
     <div class="testBlock">Evolution du java dans l'organisation : <svg id="EvolLangageJavaChart"></svg></div>
   </div>
@@ -64,82 +70,46 @@
         });
       });
 
-      let lineDataJS;
-      let evolJSOrgaData = [];
-      let i = 0;
-      data.forEach((row) => {
-        let y;
-        row.analyse.topLanguageOrga.map((obj) => {
-          if (Object.keys(obj) == 'JavaScript') {
-            y = obj['JavaScript'];
-          }
-        })
-        y == null ? 0 : y;
-        evolJSOrgaData.push({ x: i, y: y });
-        i++;
-      });
+      function getLineData(language) {
+        let lineDataJS;
+        let evolJSOrgaData = [];
+        let i = 0;
+        data.forEach((row) => {
+          let y;
+          row.analyse.topLanguageOrga.map((obj) => {
+            if (Object.keys(obj) == language) {
+              y = obj[language];
+            }
+          })
+          y == null ? 0 : y;
+          evolJSOrgaData.push({ x: i, y: y });
+          i++;
+        });
 
-      let evolJSUserData = [];
-      i = 0;
-      data.forEach((row) => {
-        let y;
-        row.analyse.topLanguageUser.map((obj) => {
-          if (Object.keys(obj) == 'JavaScript') {
-            y = obj['JavaScript'];
-          }
+        let evolJSUserData = [];
+        i = 0;
+        data.forEach((row) => {
+          let y;
+          row.analyse.topLanguageUser.map((obj) => {
+            if (Object.keys(obj) == language) {
+              y = obj[language];
+            }
+          })
+          y == null ? 0 : y;
+          evolJSUserData.push({ x: i, y: y });
+          i++;
         })
-        y == null ? 0 : y;
-        evolJSUserData.push({ x: i, y: y });
-        i++;
-      })
-      lineDataJS = [{
-        values: evolJSOrgaData,      //values - represents the array of {x,y} data points
-        key: 'evolJSOrgaData', //key  - the name of the series.
-        color: '#ff7f0e'  //color - optional: choose your own line color.
-      },
-      {
-        values: evolJSUserData,      //values - represents the array of {x,y} data points
-        key: 'evolJSUserData', //key  - the name of the series.
-        color: '#2ca02c'  //color - optional: choose your own line color.
-      }]
-
-      let lineDataJava;
-      let evolJavaOrgaData = [];
-      i = 0;
-      data.forEach((row) => {
-        let y;
-        row.analyse.topLanguageOrga.map((obj) => {
-          if (Object.keys(obj) == 'Java') {
-            y = obj['Java'];
-          }
-        })
-        evolJavaOrgaData.push({ x: i, y: y });
-        i++;
-      });
-
-      let evolJavaUserData = [];
-      i = 0;
-      data.forEach((row) => {
-        let y;
-        row.analyse.topLanguageUser.map((obj) => {
-          if (Object.keys(obj) == 'Java') {
-            y = obj['Java'];
-          }
-        })
-        y == null ? 0 : y;
-        evolJavaUserData.push({ x: i, y: y });
-        i++;
-      })
-      lineDataJava = [{
-        values: evolJavaOrgaData,      //values - represents the array of {x,y} data points
-        key: 'evolJavaOrgaData', //key  - the name of the series.
-        color: '#ff7f0e'  //color - optional: choose your own line color.
-      },
-      {
-        values: evolJavaUserData,      //values - represents the array of {x,y} data points
-        key: 'evolJavaUserData', //key  - the name of the series.
-        color: '#2ca02c'  //color - optional: choose your own line color.
-      }]
+        return lineDataJS = [{
+          values: evolJSOrgaData,      //values - represents the array of {x,y} data points
+          key: 'OrgaData', //key  - the name of the series.
+          color: '#ff7f0e'  //color - optional: choose your own line color.
+        },
+        {
+          values: evolJSUserData,      //values - represents the array of {x,y} data points
+          key: 'UserData', //key  - the name of the series.
+          color: '#2ca02c'  //color - optional: choose your own line color.
+        }]
+      }
 
       var width = 300;
       var height = 300;
@@ -203,7 +173,7 @@
           .tickFormat(d3.format('.02f'));
 
         d3.select('#EvolLangageJSChart')    //Select the <svg> element you want to render the chart in.   
-          .datum(lineDataJS)         //Populate the <svg> element with chart data...
+          .datum(getLineData('JavaScript'))         //Populate the <svg> element with chart data...
           .call(chart);          //Finally, render the chart!
 
         //Update the chart when window resizes.
@@ -230,7 +200,7 @@
           .tickFormat(d3.format('.02f'));
 
         d3.select('#EvolLangageJavaChart')    //Select the <svg> element you want to render the chart in.   
-          .datum(lineDataJava)         //Populate the <svg> element with chart data...
+          .datum(getLineData('Java'))         //Populate the <svg> element with chart data...
           .call(chart);          //Finally, render the chart!
 
         //Update the chart when window resizes.
