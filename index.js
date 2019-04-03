@@ -4,13 +4,16 @@ const { traitement, getUserInfo } = require('./get');
 const { getStats } = require('./stats');
 const Mustache = require("mustache");
 const uuidv1 = require('uuid/v1');
+const cookieParser = require('cookie-parser');
 
 const express = require("express"),
   app = express(),
   config = require("./config.js"),
   port = 3000;
 
-const { Client } = require('pg')
+app.use(cookieParser());
+
+const { Client } = require('pg');
 const clientdb = new Client({
   user: process.env.db_user,
   host: process.env.db_host,
@@ -32,10 +35,8 @@ const githubOAuth = require('github-oauth')({
   callbackURI: '/auth/github/callback'
 });
 
-let clientToken;
-
 function checkAuthentication(req, res, next) {
-  if (clientToken != undefined) {
+  if (typeof req.cookies.token !== 'undefined') {
     next();
   } else {
     res.redirect("/auth/github");
@@ -55,16 +56,17 @@ githubOAuth.on('error', function (err) {
 });
 
 githubOAuth.on('token', function (token, serverResponse) {
-  clientToken = token.access_token;
-  serverResponse.redirect("/demandeFichier");
+  console.log(token.access_token);
+  serverResponse.cookie('token', token.access_token);
+  serverResponse.redirect(`/demandeFichier`);
 });
 
 app.get('/demandeFichier', checkAuthentication, function (req, res) {
   let view = {
     username: "",
-    email: "",
+    email: ""
   };
-  return getUserInfo(clientToken).then((response) => {
+  return getUserInfo(req.cookies.token).then((response) => {
     view.username = response.data.viewer.login;
     view.email = response.data.viewer.email;
     var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
@@ -89,7 +91,7 @@ app.get('/traitementDemande', checkAuthentication, function (req, res) {
   if (!key) {
     key = uuidv1();
   }
-  traitement(key, username, email, clientToken, orga);
+  traitement(key, username, email, req.cookies.token, orga);
   res.end("ok");
   return;
 });

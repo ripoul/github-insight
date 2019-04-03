@@ -20,6 +20,8 @@ services:
                 networks: 
                         ETH:
                                 ipv4_address: 10.5.0.2
+                volumes:
+                        - .:/usr/src/app
         db:
                 image: postgres
                 environment:
