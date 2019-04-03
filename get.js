@@ -208,7 +208,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       do {
         const repositoriesCursor = repositoriesEdges.length ? repositoriesEdges[repositoriesEdges.length - 1].cursor : '';
 
-        await sleep(50);
+        await sleep(100);
         const response = await client
           .query({
             query: gql`
