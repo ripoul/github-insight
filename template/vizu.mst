@@ -42,8 +42,9 @@
   <div>
     <div>
       <select id="language-select">
-        <option value="JavaScript">JavaScript</option>
-        <option value="Java">Java</option>
+        {{#languages}}
+        <option value="{{.}}">{{.}}</option>
+        {{/languages}}
       </select>
     </div>
     <div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageJSChart"></svg></div>
@@ -81,7 +82,7 @@
               y = obj[language];
             }
           })
-          y == null ? 0 : y;
+          y = y || 0;
           evolJSOrgaData.push({ x: i, y: y });
           i++;
         });
@@ -95,7 +96,7 @@
               y = obj[language];
             }
           })
-          y == null ? 0 : y;
+          y = y || 0;
           evolJSUserData.push({ x: i, y: y });
           i++;
         })

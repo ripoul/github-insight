@@ -116,15 +116,20 @@ app.get('/vizu', function (req, res) {
   return clientdb.query(`select * from recherche where "idClient"=$1 and organization=$2 order by date;`, [key, organization])
     .then((result) => {
       let data = [];
+      let allLang = [];
       result.rows.forEach((row) => {
+        dataRow = getStats(row.members_json, row.organization_json, organization)
+        allLang = allLang.concat(dataRow.topLanguageUser.concat(dataRow.topLanguageOrga));
         obj = {
           date: row.date,
-          analyse: getStats(row.members_json, row.organization_json, organization)
+          analyse: dataRow,
         };
         data.push(obj)
       })
+      langSet = [...new Set(allLang.map(a => Object.keys(a)[0]))];
       let dataView = {
-        stats: JSON.stringify(data)
+        stats: JSON.stringify(data),
+        languages: langSet
       };
       let output = Mustache.render(fs.readFileSync("./template/vizu.mst", 'utf8'), dataView);
       res.status(200).end(output);
