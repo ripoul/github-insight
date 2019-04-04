@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +15,16 @@
     text {
       font: 12px sans-serif;
     }
+
     .testBlock {
-      display: block;
-      float: left;
+      display: inline-block;
       height: 300px;
       width: 300px;
+      margin: 15px;
     }
-    html, body {
+
+    html,
+    body {
       margin: 0px;
       padding: 0px;
       height: 100%;
@@ -28,21 +32,65 @@
     }
   </style>
 </head>
-<body>
-<div>
-<div class="testBlock">Top des languages des repos de l'organization : <svg id="topLangagesOrgaChart"></svg></div>
-<div class="testBlock">Top des languages des repos des users de l'organization : <svg id="topLangagesUserChart"></svg></div>
-</div>
-<div>
-<div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageJSChart"></svg></div>
-</div>
-<script>
-  var data = {{{ stats }}};
 
-  // Top langage chart
-  (function() {
+<body>
+  <div>
+    <div class="testBlock">Top des languages des repos de l'organization : <svg id="topLangagesOrgaChart"></svg></div>
+    <div class="testBlock">Top des languages des repos des users de l'organization : <svg id="topLangagesUserChart"></svg></div>
+  </div>
+  <div>
+    <div class="testBlock">Meilleur repo organisation vs. meilleur repo utilisateur : <svg id="topOrgaUserRepoChart"></svg></div>
+  </div>
+  <div>
+    <div>
+      <select id="language-select" onchange="selectLanguage(event)">
+        {{#languages}}
+        <option value="{{.}}">{{.}}</option>
+        {{/languages}}
+      </select>
+    </div>
+    <div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageChart"></svg></div>
+  </div>
+  <script>
+    var data = {{{ stats }}};
+    var evolLanguageChart;
+
+    function selectLanguage(e) {
+      changeLanguage(e.target.value);
+    }
+
+    function changeLanguage(language) {
+      nv.addGraph(function () {
+        evolLanguageChart = nv.models.lineChart()
+          .margin({ left: 100 })  //Adjust chart margins to give the x-axis some breathing room.
+          .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+          .duration(350)  //how fast do you want the lines to transition?
+          .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
+          .showYAxis(true)        //Show the y-axis
+          .showXAxis(true)        //Show the x-axis
+          ;
+
+        evolLanguageChart.xAxis     //Chart x-axis settings
+          .axisLabel('Temps')
+          .tickFormat(d3.format(',r'));
+
+        evolLanguageChart.yAxis     //Chart y-axis settings
+          .axisLabel('Nombre de projets')
+          .tickFormat(d3.format('s'));
+
+        d3.select('#EvolLangageChart')    //Select the <svg> element you want to render the chart in.   
+          .datum(getLineData(language))         //Populate the <svg> element with chart data...
+          .call(evolLanguageChart);          //Finally, render the chart!
+
+        //Update the chart when window resizes.
+        nv.utils.windowResize(function () { evolLanguageChart.update() });
+        return evolLanguageChart;
+      });
+    }
+
+    // Top langage chart
     let topLanguageOrgaData = [];
-    data[data.length -1].analyse.topLanguageOrga.forEach((langage) => {
+    data[data.length - 1].analyse.topLanguageOrga.forEach((langage) => {
       topLanguageOrgaData.push({
         key: Object.keys(langage)[0],
         y: langage[Object.keys(langage)[0]]
@@ -50,121 +98,130 @@
     });
 
     let topLanguageUserData = [];
-    data[data.length -1].analyse.topLanguageUser.forEach((langage) => {
+    data[data.length - 1].analyse.topLanguageUser.forEach((langage) => {
       topLanguageUserData.push({
         key: Object.keys(langage)[0],
         y: langage[Object.keys(langage)[0]]
       });
     });
 
-    let lineData;
-    let evolJSOrgaData = [];
-    let i=0;
-    data.forEach((row) => {
-      let y;
-      row.analyse.topLanguageOrga.map((obj)=>{
-        if (Object.keys(obj) == 'JavaScript') {
-          y= obj['JavaScript'];
-        }
-      })
-      evolJSOrgaData.push({x: i, y: y});
-      i++;
+    // Top orga / user chart
+    let topOrgaUserRepoData = [];
+    data[data.length - 1].analyse.topOrgaUserRepo.forEach((repo) => {
+      topOrgaUserRepoData.push({
+        key: repo.name,
+        y: repo.totalStars
+      });
     });
-    
-    let evolJSUserData = [];
-    i=0;
-    data.forEach((row) => {
-      let y;
-      row.analyse.topLanguageUser.map((obj)=>{
-        if (Object.keys(obj) == 'JavaScript') {
-          y= obj['JavaScript'];
-        }
+
+    function getLineData(language) {
+      let lineData;
+      let evolOrgaData = [];
+      let i = 0;
+      data.forEach((row) => {
+        let y;
+        row.analyse.topLanguageOrga.map((obj) => {
+          if (Object.keys(obj) == language) {
+            y = obj[language];
+          }
+        })
+        y = y || 0;
+        evolOrgaData.push({ x: i, y: y });
+        i++;
+      });
+
+      let evolUserData = [];
+      i = 0;
+      data.forEach((row) => {
+        let y;
+        row.analyse.topLanguageUser.map((obj) => {
+          if (Object.keys(obj) == language) {
+            y = obj[language];
+          }
+        })
+        y = y || 0;
+        evolUserData.push({ x: i, y: y });
+        i++;
       })
-      evolJSUserData.push({x: i, y: y});
-      i++;
-    })
-    lineData = [{
-      values: evolJSOrgaData,      //values - represents the array of {x,y} data points
-      key: 'evolJSOrgaData', //key  - the name of the series.
-      color: '#ff7f0e'  //color - optional: choose your own line color.
-    },
-    {
-      values: evolJSUserData,      //values - represents the array of {x,y} data points
-      key: 'evolJSUserData', //key  - the name of the series.
-      color: '#2ca02c'  //color - optional: choose your own line color.
-    }]
+
+      return lineData = [{
+        values: evolOrgaData,      //values - represents the array of {x,y} data points
+        key: 'OrgaData', //key  - the name of the series.
+        color: '#ff7f0e'  //color - optional: choose your own line color.
+      },
+      {
+        values: evolUserData,      //values - represents the array of {x,y} data points
+        key: 'UserData', //key  - the name of the series.
+        color: '#2ca02c'  //color - optional: choose your own line color.
+      }]
+    }
 
     var width = 300;
     var height = 300;
 
-    nv.addGraph(function() {
+    // Langage orga chart
+    nv.addGraph(function () {
       var chart = nv.models.pie()
-          .x(function(d) { return d.key; })
-          .y(function(d) { return d.y; })
-          .width(width)
-          .height(height)
-          .labelType(function(d, i, values) {
-            return values.key + ':' + values.value;
-          })
-          ;
+        .x(function (d) { return d.key; })
+        .y(function (d) { return d.y; })
+        .width(width)
+        .height(height)
+        .labelType(function (d, i, values) {
+          return values.key + ':' + values.value;
+        })
+        ;
 
       d3.select("#topLangagesOrgaChart")
-          .datum([topLanguageOrgaData])
-          .transition().duration(1200)
-          .attr('width', width)
-          .attr('height', height)
-          .call(chart);
+        .datum([topLanguageOrgaData])
+        .transition().duration(1200)
+        .attr('width', width)
+        .attr('height', height)
+        .call(chart);
       return chart;
     });
 
-    nv.addGraph(function() {
+    // Langage user chart
+    nv.addGraph(function () {
       var chart = nv.models.pie()
-          .x(function(d) { return d.key; })
-          .y(function(d) { return d.y; })
-          .width(width)
-          .height(height)
-          .labelType(function(d, i, values) {
-            return values.key + ':' + values.value;
-          })
-          ;
+        .x(function (d) { return d.key; })
+        .y(function (d) { return d.y; })
+        .width(width)
+        .height(height)
+        .labelType(function (d, i, values) {
+          return values.key + ':' + values.value;
+        })
+        ;
 
       d3.select("#topLangagesUserChart")
-          .datum([topLanguageUserData])
-          .transition().duration(1200)
-          .attr('width', width)
-          .attr('height', height)
-          .call(chart);
+        .datum([topLanguageUserData])
+        .transition().duration(1200)
+        .attr('width', width)
+        .attr('height', height)
+        .call(chart);
       return chart;
     });
 
-    nv.addGraph(function() {
-  var chart = nv.models.lineChart()
-                .margin({left: 100})  //Adjust chart margins to give the x-axis some breathing room.
-                .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
-                .duration(350)  //how fast do you want the lines to transition?
-                .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
-                .showYAxis(true)        //Show the y-axis
-                .showXAxis(true)        //Show the x-axis
-  ;
+    // Top orga / user repo chart
+    nv.addGraph(function () {
+      var chart = nv.models.discreteBarChart()
+        .x(function (d) { return d.key; })
+        .y(function (d) { return d.y; })
+        .width(width)
+        .height(height)
+        .showValues(true)
+        .staggerLabels(true);
 
-  chart.xAxis     //Chart x-axis settings
-      .axisLabel('Time (ms)')
-      .tickFormat(d3.format(',r'));
+      d3.select("#topOrgaUserRepoChart")
+        .datum([{values: topOrgaUserRepoData}])
+        .transition().duration(1200)
+        .attr('width', width)
+        .attr('height', height)
+        .call(chart);
+      return chart;
+    });
 
-  chart.yAxis     //Chart y-axis settings
-      .axisLabel('Voltage (v)')
-      .tickFormat(d3.format('.02f'));
-
-  d3.select('#EvolLangageJSChart')    //Select the <svg> element you want to render the chart in.   
-      .datum(lineData)         //Populate the <svg> element with chart data...
-      .call(chart);          //Finally, render the chart!
-
-  //Update the chart when window resizes.
-  nv.utils.windowResize(function() { chart.update() });
-  return chart;
-});
-  })();
-
-</script>
+    changeLanguage(document.getElementById("language-select").value);
+  </script>
 </body>
+
 </html>

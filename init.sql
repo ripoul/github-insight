@@ -1,4 +1,4 @@
-CREATE TABLE public.recherche
+CREATE TABLE recherche
 (
     "idClient" uuid NOT NULL,
     organization character varying(255) COLLATE pg_catalog."default" NOT NULL,
@@ -11,6 +11,3 @@ WITH (
     OIDS = FALSE
 )
 TABLESPACE pg_default;
-
-ALTER TABLE public.recherche
-    OWNER to ripoul;

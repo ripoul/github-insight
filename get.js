@@ -1,3 +1,4 @@
+const envConf = require('dotenv').config()
 const nodemailer = require('nodemailer');
 const httpie = require('httpie');
 const fs = require('fs');
@@ -8,14 +9,17 @@ const config = require("./config.js");
 
 const { Client } = require('pg')
 const clientdb = new Client({
-  user: config.db.user,
-  host: config.db.host,
-  database: config.db.database,
-  password: config.db.password,
-  port: config.db.port,
+  user: process.env.db_user,
+  host: process.env.db_host,
+  database: process.env.db_database,
+  password: process.env.db_pass,
+  port: process.env.db_port,
 })
 
-clientdb.connect();
+clientdb.connect().catch(error=>{
+  console.log(error)
+  process.exit(1);
+});
 
 function getUserInfo(githubToken) {
   return new Promise((resolve, reject) => {
@@ -109,7 +113,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
     members = await getMembers();
   } catch (e) {
     console.error('Error while fetching members', JSON.stringify(e, undefined, 2));
-    process.exit(0);
+    process.exit(1);
   }
   console.log(`Number of members: ${members.length}`);
   const membersInError = [];
@@ -204,7 +208,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       do {
         const repositoriesCursor = repositoriesEdges.length ? repositoriesEdges[repositoriesEdges.length - 1].cursor : '';
 
-        await sleep(50);
+        await sleep(100);
         const response = await client
           .query({
             query: gql`
@@ -282,10 +286,10 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
 
     return result;
   }
+}
 
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 module.exports.traitement = traitement;

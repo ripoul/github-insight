@@ -15,22 +15,24 @@ module.exports = {
       'service': 'the email service (gmail)',
       'user': 'the email/user',
       'pass': 'the password'
-    },
-    'db':{
-      'user': 'dbuser',
-      'host': 'database.server.com',
-      'database': 'mydb',
-      'password': 'secretpassword',
-      'port': 5432
     }
   }
 ```
 
+If you are not using docker, you have to add a file named `.env` with the following content : 
+```
+db_user=my_user
+db_host=my_host
+db_database=my_db
+db_pass=my_pass
+db_port=my_port
+```
+If not, you can set environment variables. The variables has to be named like in the `.env` file.
+
 # Help
 ## Docker
 ```
-docker build -t <your username>/node-github-insight .
-docker run -p 49160:3000 -d <your username>/node-github-insight
+sudo docker-compose rm --all && sudo  docker-compose pull && sudo  docker-compose build --no-cache && sudo docker-compose up --force-recreate
 ```
 
 ## Gcloud

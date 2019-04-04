@@ -1,24 +1,31 @@
+const envConf = require('dotenv').config()
 const fs = require('fs');
 const { traitement, getUserInfo } = require('./get');
 const { getStats } = require('./stats');
 const Mustache = require("mustache");
 const uuidv1 = require('uuid/v1');
+const cookieParser = require('cookie-parser');
 
 const express = require("express"),
   app = express(),
   config = require("./config.js"),
   port = 3000;
 
-const { Client } = require('pg')
+app.use(cookieParser());
+
+const { Client } = require('pg');
 const clientdb = new Client({
-  user: config.db.user,
-  host: config.db.host,
-  database: config.db.database,
-  password: config.db.password,
-  port: config.db.port,
+  user: process.env.db_user,
+  host: process.env.db_host,
+  database: process.env.db_database,
+  password: process.env.db_pass,
+  port: process.env.db_port,
 })
 
-clientdb.connect();
+clientdb.connect().catch(error=>{
+  console.log(error)
+  process.exit(1);clientdb
+});
 
 const githubOAuth = require('github-oauth')({
   githubClient: config.GITHUB_KEY,
@@ -28,10 +35,8 @@ const githubOAuth = require('github-oauth')({
   callbackURI: '/auth/github/callback'
 });
 
-let clientToken;
-
 function checkAuthentication(req, res, next) {
-  if (clientToken != undefined) {
+  if (typeof req.cookies.token !== 'undefined') {
     next();
   } else {
     res.redirect("/auth/github");
@@ -51,16 +56,17 @@ githubOAuth.on('error', function (err) {
 });
 
 githubOAuth.on('token', function (token, serverResponse) {
-  clientToken = token.access_token;
-  serverResponse.redirect("/demandeFichier");
+  console.log(token.access_token);
+  serverResponse.cookie('token', token.access_token);
+  serverResponse.redirect(`/demandeFichier`);
 });
 
 app.get('/demandeFichier', checkAuthentication, function (req, res) {
   let view = {
     username: "",
-    email: "",
+    email: ""
   };
-  return getUserInfo(clientToken).then((response) => {
+  return getUserInfo(req.cookies.token).then((response) => {
     view.username = response.data.viewer.login;
     view.email = response.data.viewer.email;
     var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
@@ -85,7 +91,7 @@ app.get('/traitementDemande', checkAuthentication, function (req, res) {
   if (!key) {
     key = uuidv1();
   }
-  traitement(key, username, email, clientToken, orga);
+  traitement(key, username, email, req.cookies.token, orga);
   res.end("ok");
   return;
 });
@@ -112,15 +118,20 @@ app.get('/vizu', function (req, res) {
   return clientdb.query(`select * from recherche where "idClient"=$1 and organization=$2 order by date;`, [key, organization])
     .then((result) => {
       let data = [];
+      let allLang = [];
       result.rows.forEach((row) => {
+        dataRow = getStats(row.members_json, row.organization_json, organization)
+        allLang = allLang.concat(dataRow.topLanguageUser.concat(dataRow.topLanguageOrga));
         obj = {
           date: row.date,
-          analyse: getStats(row.members_json, row.organization_json, organization)
+          analyse: dataRow,
         };
         data.push(obj)
       })
+      langSet = [...new Set(allLang.map(a => Object.keys(a)[0]))];
       let dataView = {
-        stats: JSON.stringify(data)
+        stats: JSON.stringify(data),
+        languages: langSet
       };
       let output = Mustache.render(fs.readFileSync("./template/vizu.mst", 'utf8'), dataView);
       res.status(200).end(output);
