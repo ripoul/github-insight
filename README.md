@@ -44,3 +44,5 @@ sudo gcloud config set project github-insights-epsi
 sudo gcloud app create
 sudo gcloud app deploy -v v0
 ```
+
+[Here](https://cloud.google.com/sql/docs/postgres/connect-app-engine) some help with connecting a postgresql db in a google cloud app engine application.

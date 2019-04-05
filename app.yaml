@@ -1,1 +1,10 @@
-runtime: nodejs11
+runtime: custom
+env: flex
+env_variables:
+  db_user: 'github'
+  db_host: /cloud/amiable-reducer-236513:europe-west1:insight
+  db_database: 'github'
+  db_pass: 'github'
+  db_port: 80
+beta_settings:
+  cloud_sql_instances: amiable-reducer-236513:europe-west1:insight
