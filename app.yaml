@@ -1,1 +1,12 @@
-runtime: nodejs11
+runtime: custom
+env: flex
+env_variables:
+  db_user: 'user'
+  db_host: /cloudsql/postgres instance
+  db_database: 'db'
+  db_pass: 'pass'
+  adress: 'your app adress'
+  GITHUB_KEY: my github prod key
+  GITHUB_SECRET: my github prod secret
+beta_settings:
+  cloud_sql_instances: postgres instance

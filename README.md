@@ -9,8 +9,6 @@ Node11 is required ! Use nvm to change node version easly. Or you can use babel.
 create a config.js file like that : 
 ```
 module.exports = {
-    'GITHUB_KEY': 'your-github-key-here',
-    'GITHUB_SECRET': 'your-github-secret-here',
     'email':{
       'service': 'the email service (gmail)',
       'user': 'the email/user',
@@ -26,6 +24,10 @@ db_host=my_host
 db_database=my_db
 db_pass=my_pass
 db_port=my_port
+GITHUB_KEY: your-github-Oauth-key-here
+GITHUB_SECRET: your-github-Oauth-secret-here
+PORT=the app port
+adress=the adress and port of the application (http://localhost:8080)
 ```
 If not, you can set environment variables. The variables has to be named like in the `.env` file.
 
@@ -37,6 +39,7 @@ sudo docker-compose rm --all && sudo  docker-compose pull && sudo  docker-compos
 
 ## Gcloud
 We may be use gcloud to host our appli : 
+You have to uncoment the last line off the `Dockerfile`.
 ```
 sudo gcloud init
 sudo gcloud auth login
@@ -44,3 +47,5 @@ sudo gcloud config set project github-insights-epsi
 sudo gcloud app create
 sudo gcloud app deploy -v v0
 ```
+
+You can find some doc to connect postgresql with node app [Here](https://cloud.google.com/sql/docs/postgres/connect-app-engine).
