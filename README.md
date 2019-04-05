@@ -39,6 +39,7 @@ sudo docker-compose rm --all && sudo  docker-compose pull && sudo  docker-compos
 
 ## Gcloud
 We may be use gcloud to host our appli : 
+
 You have to uncoment the last line off the `Dockerfile`.
 ```
 sudo gcloud init
