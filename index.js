@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const express = require("express"),
   app = express(),
   config = require("./config.js"),
-  port = process.env.PORT || 3000;
+  port = process.env.PORT || 8080;
 
 app.use(cookieParser());
 
@@ -19,7 +19,7 @@ const clientdb = new Client({
   host: process.env.db_host,
   database: process.env.db_database,
   password: process.env.db_pass,
-  port: process.env.db_port,
+  port:process.env.db_port
 })
 
 clientdb.connect().catch(error=>{
@@ -28,9 +28,9 @@ clientdb.connect().catch(error=>{
 });
 
 const githubOAuth = require('github-oauth')({
-  githubClient: config.GITHUB_KEY,
-  githubSecret: config.GITHUB_SECRET,
-  baseURL: 'http://localhost:' + port,
+  githubClient: process.env.GITHUB_KEY,
+  githubSecret: process.env.GITHUB_SECRET,
+  baseURL: process.env.adress,
   loginURI: '/auth/github',
   callbackURI: '/auth/github/callback'
 });

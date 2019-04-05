@@ -1,10 +1,12 @@
 runtime: custom
 env: flex
 env_variables:
-  db_user: 'github'
-  db_host: /cloud/amiable-reducer-236513:europe-west1:insight
-  db_database: 'github'
-  db_pass: 'github'
-  db_port: 80
+  db_user: 'user'
+  db_host: /cloudsql/postgres instance
+  db_database: 'db'
+  db_pass: 'pass'
+  adress: 'your app adress'
+  GITHUB_KEY: my github prod key
+  GITHUB_SECRET: my github prod secret
 beta_settings:
-  cloud_sql_instances: amiable-reducer-236513:europe-west1:insight
+  cloud_sql_instances: postgres instance
