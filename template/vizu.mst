@@ -23,6 +23,13 @@
       margin: 15px;
     }
 
+    .grandtestBlock {
+      display: inline-block;
+      height: 300px;
+      width: 1000px;
+      margin: 15px;
+    }
+
     html,
     body {
       margin: 0px;
@@ -39,7 +46,10 @@
     <div class="testBlock">Top des languages des repos des users de l'organization : <svg id="topLangagesUserChart"></svg></div>
   </div>
   <div>
-    <div class="testBlock">Meilleur repo organisation vs. meilleur repo utilisateur : <svg id="topOrgaUserRepoChart"></svg></div>
+    <div class="grandtestBlock">Meilleur repo utilisateur : <svg id="topUserRepoChart"></svg></div>
+  </div>
+  <div>
+    <div class="grandtestBlock">Meilleur repo orga : <svg id="topOrgaRepoChart"></svg></div>
   </div>
   <div>
     <div>
@@ -105,12 +115,21 @@
       });
     });
 
-    // Top orga / user chart
-    let topOrgaUserRepoData = [];
-    data[data.length - 1].analyse.topOrgaUserRepo.forEach((repo) => {
-      topOrgaUserRepoData.push({
-        key: repo.name,
-        y: repo.totalStars
+    // Top user chart
+    let topUserRepoData = [];
+    data[data.length - 1].analyse.topOrgaUserRepo.map(repo => {
+      topUserRepoData.push({
+        key: Object.keys(repo)[0],
+        y: repo[Object.keys(repo)[0]]
+      });
+    });
+
+    // Top user chart
+    let topOrgaRepoData = [];
+    data[data.length - 1].analyse.topOrgaRepo.map(repo => {
+      topOrgaRepoData.push({
+        key: Object.keys(repo)[0],
+        y: repo[Object.keys(repo)[0]]
       });
     });
 
@@ -206,13 +225,31 @@
       var chart = nv.models.discreteBarChart()
         .x(function (d) { return d.key; })
         .y(function (d) { return d.y; })
-        .width(width)
+        .width(1000)
         .height(height)
         .showValues(true)
         .staggerLabels(true);
 
-      d3.select("#topOrgaUserRepoChart")
-        .datum([{values: topOrgaUserRepoData}])
+      d3.select("#topUserRepoChart")
+        .datum([{values: topUserRepoData}])
+        .transition().duration(1200)
+        .attr('width', width)
+        .attr('height', height)
+        .call(chart);
+      return chart;
+    });
+
+    nv.addGraph(function () {
+      var chart = nv.models.discreteBarChart()
+        .x(function (d) { return d.key; })
+        .y(function (d) { return d.y; })
+        .width(1000)
+        .height(height)
+        .showValues(true)
+        .staggerLabels(true);
+
+      d3.select("#topOrgaRepoChart")
+        .datum([{values: topOrgaRepoData}])
         .transition().duration(1200)
         .attr('width', width)
         .attr('height', height)

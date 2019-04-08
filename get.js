@@ -79,7 +79,8 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       from: config.email.user,
       to: emailDemande,
       subject: 'github insight demande fini',
-      text: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${process.env.adress}vizu?key=${key}&organization=${githubOrganization}`
+      text: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${process.env.adress}/vizu?key=${key}&organization=${githubOrganization}
+      Si vous voulez completer la recherche, dans la case clé, merci de mettre "${key}"`
     };
 
     transporter.sendMail(mailOptions, function (error, info) {

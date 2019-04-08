@@ -63,39 +63,6 @@ function getStats(members, organizationRepositories, githubOrganization) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
 
-  const topOrgaUserRepo = (function() {
-    let topUserRepo = null;
-    let topOrgaRepo = null;
-
-    // Get top user repo
-    members.forEach((member) => {
-      member.repositories.forEach((memberRepository) => {
-        if (topUserRepo === null || memberRepository.stargazers.totalCount > topUserRepo.stargazers.totalCount) {
-          topUserRepo = memberRepository;
-        }
-      })
-    });
-
-    // Get top orga repo
-    organizationRepositories.forEach((orgaRepo) => {
-      if (topOrgaRepo === null || orgaRepo.stargazers.totalCount > topOrgaRepo.stargazers.totalCount) {
-        topOrgaRepo = orgaRepo;
-      }
-    });
-
-    // Format result
-    return [
-      {
-        name: `${topUserRepo.name} (${topUserRepo.owner.login})`,
-        totalStars: topUserRepo.stargazers.totalCount
-      },
-      {
-        name: topOrgaRepo.name,
-        totalStars: topOrgaRepo.stargazers.totalCount
-      }
-    ];
-  })();
-
   console.log(chalk`
   {bold.red.bgWhite ${githubOrganization}}
   Members: {blue ${members.length}}
@@ -129,12 +96,18 @@ function getStats(members, organizationRepositories, githubOrganization) {
     obj[language] = count;
     return obj;
   });
-  ret.toMemberRepo = stargazersForMembersOwnedRepositories.map(([ind, count]) => {
-    let obj = {};
-    obj[ind] = count;
-    return obj;
+  
+  ret.topOrgaUserRepo = stargazersForMembersOwnedRepositories.map(([repo, count]) => {
+    let obj = {}
+    obj[repo] = count
+    return obj
   });
-  ret.topOrgaUserRepo = topOrgaUserRepo;
+
+  ret.topOrgaRepo = stargazersForOrganization.map(([repo, count]) => {
+    let obj = {}
+    obj[repo] = count
+    return obj
+  });
 
   return ret;
 
