@@ -43,7 +43,7 @@ sudo docker-compose rm --all && sudo  docker-compose pull && sudo  docker-compos
 ## Gcloud
 We may be use gcloud to host our appli : 
 
-You have to uncoment the last line off the `Dockerfile`.
+You have to uncoment the last line of the `Dockerfile`.
 
 You also need a file name `app.yaml` with the folowing content : 
 ```
@@ -64,7 +64,7 @@ beta_settings:
 ```
 sudo gcloud init
 sudo gcloud auth login
-sudo gcloud config set project github-insights-epsi
+sudo gcloud config set project your-project-id
 sudo gcloud app create
 sudo gcloud app deploy -v v0
 ```
