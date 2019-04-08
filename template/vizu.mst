@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Formulaire de demande d'annalyse</title>
+  <title>resultat d'annalyse</title>
 
   <link href="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.css" rel="stylesheet" type="text/css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
@@ -60,6 +60,9 @@
       </select>
     </div>
     <div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageChart"></svg></div>
+  </div>
+  <div>
+    Pour suprimer les recherches lié à cette clé : c'est <a href="/demandeDelete">ici</a>
   </div>
   <script>
     var data = {{{ stats }}};

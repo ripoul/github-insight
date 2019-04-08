@@ -92,19 +92,25 @@ app.get('/traitementDemande', checkAuthentication, function (req, res) {
     key = uuidv1();
   }
   traitement(key, username, email, req.cookies.token, orga);
-  res.end("ok");
+  res.end("traitement en cours : vous receverez un mail");
   return;
 });
 
-app.get('/delete', checkAuthentication, function (req, res) {
+app.get('/delete', function (req, res) {
   key = req.query.key;
   if (!key) {
     res.status(400).end('{"error" : "Key parameter required!"}');
     return;
   }
+  clientdb.query(`delete from recherche where "idClient"=$1 `, [key]).then(result => {
+    res.end("recherche suprimée");
+  })
+});
 
-  //TODO refaire le delete 
-  res.end("done");
+app.get('/demandeDelete', function (req, res) {
+  let output = Mustache.render(fs.readFileSync("./template/demandeDelete.mst", 'utf8'));
+  res.status(200).end(output);
+  return;
 });
 
 app.get('/vizu', function (req, res) {
@@ -137,6 +143,10 @@ app.get('/vizu', function (req, res) {
       res.status(200).end(output);
       return;
     });
+})
+
+app.get("/", function(req, res) {
+  res.redirect("/demandeFichier");
 })
 
 var server = app.listen(port, function () {
