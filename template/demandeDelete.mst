@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>suppression recherche</title>
+</head>
+<body>
+    Cette action est irreversible. Cela va suprimer tout l'historique de recherche lié à cette clé. 
+    <form action="/delete">
+        Clé de recherche / id client : <input type="text" name="key" value=""> <br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Formulaire de demande d'annalyse</title>
+  <title>resultat d'annalyse</title>
 
   <link href="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.css" rel="stylesheet" type="text/css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
@@ -20,6 +20,13 @@
       display: inline-block;
       height: 300px;
       width: 300px;
+      margin: 15px;
+    }
+
+    .grandtestBlock {
+      display: inline-block;
+      height: 300px;
+      width: 1000px;
       margin: 15px;
     }
 
@@ -39,7 +46,10 @@
     <div class="testBlock">Top des languages des repos des users de l'organization : <svg id="topLangagesUserChart"></svg></div>
   </div>
   <div>
-    <div class="testBlock">Meilleur repo organisation vs. meilleur repo utilisateur : <svg id="topOrgaUserRepoChart"></svg></div>
+    <div class="grandtestBlock">Meilleur repo utilisateur : <svg id="topUserRepoChart"></svg></div>
+  </div>
+  <div>
+    <div class="grandtestBlock">Meilleur repo orga : <svg id="topOrgaRepoChart"></svg></div>
   </div>
   <div>
     <div>
@@ -50,6 +60,9 @@
       </select>
     </div>
     <div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageChart"></svg></div>
+  </div>
+  <div>
+    Pour suprimer les recherches lié à cette clé : c'est <a href="/demandeDelete">ici</a>
   </div>
   <script>
     var data = {{{ stats }}};
@@ -105,12 +118,21 @@
       });
     });
 
-    // Top orga / user chart
-    let topOrgaUserRepoData = [];
-    data[data.length - 1].analyse.topOrgaUserRepo.forEach((repo) => {
-      topOrgaUserRepoData.push({
-        key: repo.name,
-        y: repo.totalStars
+    // Top user chart
+    let topUserRepoData = [];
+    data[data.length - 1].analyse.topOrgaUserRepo.map(repo => {
+      topUserRepoData.push({
+        key: Object.keys(repo)[0],
+        y: repo[Object.keys(repo)[0]]
+      });
+    });
+
+    // Top user chart
+    let topOrgaRepoData = [];
+    data[data.length - 1].analyse.topOrgaRepo.map(repo => {
+      topOrgaRepoData.push({
+        key: Object.keys(repo)[0],
+        y: repo[Object.keys(repo)[0]]
       });
     });
 
@@ -206,13 +228,31 @@
       var chart = nv.models.discreteBarChart()
         .x(function (d) { return d.key; })
         .y(function (d) { return d.y; })
-        .width(width)
+        .width(1000)
         .height(height)
         .showValues(true)
         .staggerLabels(true);
 
-      d3.select("#topOrgaUserRepoChart")
-        .datum([{values: topOrgaUserRepoData}])
+      d3.select("#topUserRepoChart")
+        .datum([{values: topUserRepoData}])
+        .transition().duration(1200)
+        .attr('width', width)
+        .attr('height', height)
+        .call(chart);
+      return chart;
+    });
+
+    nv.addGraph(function () {
+      var chart = nv.models.discreteBarChart()
+        .x(function (d) { return d.key; })
+        .y(function (d) { return d.y; })
+        .width(1000)
+        .height(height)
+        .showValues(true)
+        .staggerLabels(true);
+
+      d3.select("#topOrgaRepoChart")
+        .datum([{values: topOrgaRepoData}])
         .transition().duration(1200)
         .attr('width', width)
         .attr('height', height)

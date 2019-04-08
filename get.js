@@ -7,13 +7,13 @@ const { default: ApolloClient, gql } = require('apollo-boost');
 const ProgressBar = require('progress');
 const config = require("./config.js");
 
-const { Client } = require('pg')
+const { Client } = require('pg');
 const clientdb = new Client({
   user: process.env.db_user,
   host: process.env.db_host,
   database: process.env.db_database,
   password: process.env.db_pass,
-  port: process.env.db_port,
+  port:process.env.db_port
 })
 
 clientdb.connect().catch(error=>{
@@ -79,7 +79,8 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       from: config.email.user,
       to: emailDemande,
       subject: 'github insight demande fini',
-      text: `demande completé ! Vous pouvez voir le resultat à cette adresse : http://localhost:3000/vizu?key=${key}&organization=${githubOrganization}`
+      text: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${process.env.adress}/vizu?key=${key}&organization=${githubOrganization}
+      Si vous voulez completer la recherche, dans la case clé, merci de mettre "${key}"`
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
