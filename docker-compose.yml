@@ -21,6 +21,8 @@ services:
                         - adress=http://localhost:8080
                         - GITHUB_KEY=your-github-Oauth-key-here
                         - GITHUB_SECRET=your-github-Oauth-key-here
+                        - SENDGRID_API_KEY=your-send-grid-api-key
+                        - SENDGRID_SENDER=your-email
                 networks: 
                         ETH:
                                 ipv4_address: 10.5.0.2

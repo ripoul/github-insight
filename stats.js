@@ -1,6 +1,4 @@
 const config = require('dotenv').config()
-const fs = require('fs')
-const path = require('path')
 const chalk = require('chalk')
 
 function getStats(members, organizationRepositories, githubOrganization) {

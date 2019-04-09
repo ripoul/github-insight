@@ -1,11 +1,11 @@
 const envConf = require('dotenv').config()
-const nodemailer = require('nodemailer');
 const httpie = require('httpie');
-const fs = require('fs');
-const path = require('path');
 const { default: ApolloClient, gql } = require('apollo-boost');
 const ProgressBar = require('progress');
-const config = require("./config.js");
+
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+const SENDGRID_SENDER = process.env.SENDGRID_SENDER;
+const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
 
 const { Client } = require('pg');
 const clientdb = new Client({
@@ -67,28 +67,29 @@ function getUserInfo(githubToken) {
 
 async function traitement(key, githubId, email, githubToken, githubOrganization) {
   function sendMailWhenFinish(emailDemande) {
-    let transporter = nodemailer.createTransport({
-      service: config.email.service,
-      auth: {
-        user: config.email.user,
-        pass: config.email.pass
-      }
+    const sgReq = Sendgrid.emptyRequest({
+      method: 'POST',
+      path: '/v3/mail/send',
+      body: {
+        personalizations: [
+          {
+            to: [{email: emailDemande}],
+            subject: 'github insight demande fini',
+          },
+        ],
+        from: {email: SENDGRID_SENDER},
+        content: [
+          {
+            type: 'text/plain',
+            value: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${process.env.adress}/vizu?key=${key}&organization=${githubOrganization}
+            Si vous voulez completer la recherche, dans la case clé, merci de mettre "${key}"`,
+          },
+        ],
+      },
     });
-
-    let mailOptions = {
-      from: config.email.user,
-      to: emailDemande,
-      subject: 'github insight demande fini',
-      text: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${process.env.adress}/vizu?key=${key}&organization=${githubOrganization}
-      Si vous voulez completer la recherche, dans la case clé, merci de mettre "${key}"`
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
+  
+    Sendgrid.API(sgReq, err => {
+      console.log(err)
     });
   }
 
