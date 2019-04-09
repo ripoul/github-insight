@@ -67,6 +67,9 @@ function getUserInfo(githubToken) {
 
 async function traitement(key, githubId, email, githubToken, githubOrganization) {
   function sendMailWhenFinish(emailDemande) {
+    let urlVizu = `${process.env.adress}/vizu?key=${key}&organization=${githubOrganization}`;
+    console.log(`URL de visionnage : ${urlVizu}`);
+
     const sgReq = Sendgrid.emptyRequest({
       method: 'POST',
       path: '/v3/mail/send',
@@ -81,7 +84,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
         content: [
           {
             type: 'text/plain',
-            value: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${process.env.adress}/vizu?key=${key}&organization=${githubOrganization}
+            value: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${urlVizu}
             Si vous voulez completer la recherche, dans la case clé, merci de mettre "${key}"`,
           },
         ],
