@@ -5,65 +5,76 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>resultat d'annalyse</title>
+  <title>Github Insight - Résultat d'analyse</title>
 
   <link href="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.css" rel="stylesheet" type="text/css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
-  <script src="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.min.js"></script>
-
-  <style>
-    text {
-      font: 12px sans-serif;
-    }
-
-    .testBlock {
-      display: inline-block;
-      height: 300px;
-      width: 300px;
-      margin: 15px;
-    }
-
-    .grandtestBlock {
-      display: inline-block;
-      height: 300px;
-      width: 1000px;
-      margin: 15px;
-    }
-
-    html,
-    body {
-      margin: 0px;
-      padding: 0px;
-      height: 100%;
-      width: 100%;
-    }
-  </style>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 
 <body>
-  <div>
-    <div class="testBlock">Top des languages des repos de l'organization : <svg id="topLangagesOrgaChart"></svg></div>
-    <div class="testBlock">Top des languages des repos des users de l'organization : <svg id="topLangagesUserChart"></svg></div>
-  </div>
-  <div>
-    <div class="grandtestBlock">Meilleur repo utilisateur : <svg id="topUserRepoChart"></svg></div>
-  </div>
-  <div>
-    <div class="grandtestBlock">Meilleur repo orga : <svg id="topOrgaRepoChart"></svg></div>
-  </div>
-  <div>
-    <div>
-      <select id="language-select" onchange="selectLanguage(event)">
-        {{#languages}}
-        <option value="{{.}}">{{.}}</option>
-        {{/languages}}
-      </select>
+  <div class="container bg-light">
+    <h1>Github Insight</h1>
+    <h2>Résultat d'analyse</h2>
+
+    <div class="row">
+      <div class="col">
+        <div class="card text-center">
+          <h5 class="card-title">Top des languages des repos de l'organization</h5>
+          <div class="card-body"><svg id="topLangagesOrgaChart"></svg></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card text-center">
+          <h5 class="card-title">Top des languages des repos des users de l'organization</h5>
+          <div class="card-body"><svg id="topLangagesUserChart"></svg></div>
+        </div>
+      </div>
     </div>
-    <div class="testBlock">Evolution du js dans l'organisation : <svg id="EvolLangageChart"></svg></div>
+
+    <div class="row">
+      <div class="col">
+        <div class="card text-center">
+          <h5 class="card-title">Meilleur repo utilisateur</h5>
+          <div class="card-body"><svg id="topUserRepoChart"></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="card text-center">
+          <h5 class="card-title">Meilleur repo orga</h5>
+          <div class="card-body"><svg id="topOrgaRepoChart"></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <select class="form-control" id="language-select" onchange="selectLanguage(event)" style="width:25%">
+          {{#languages}}
+          <option value="{{.}}">{{.}}</option>
+          {{/languages}}
+        </select>
+        <div class="card text-center">
+          <h5 class="card-title">Evolution du js dans l'organisation</h5>
+          <div class="card-body"><svg id="EvolLangageChart"></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      Pour suprimer les recherches liées à cette clé : cliquer <a href="/demandeDelete">ici</a>
+    </div>
   </div>
-  <div>
-    Pour suprimer les recherches lié à cette clé : c'est <a href="/demandeDelete">ici</a>
-  </div>
+
+  {{! Scripts }}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
+  <script src="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <script>
     var data = {{{ stats }}};
     var evolLanguageChart;
@@ -178,16 +189,11 @@
       }]
     }
 
-    var width = 300;
-    var height = 300;
-
     // Langage orga chart
     nv.addGraph(function () {
       var chart = nv.models.pie()
         .x(function (d) { return d.key; })
         .y(function (d) { return d.y; })
-        .width(width)
-        .height(height)
         .labelType(function (d, i, values) {
           return values.key + ':' + values.value;
         })
@@ -196,8 +202,8 @@
       d3.select("#topLangagesOrgaChart")
         .datum([topLanguageOrgaData])
         .transition().duration(1200)
-        .attr('width', width)
-        .attr('height', height)
+        .attr('width', 200)
+        .attr('height', 200)
         .call(chart);
       return chart;
     });
@@ -207,8 +213,6 @@
       var chart = nv.models.pie()
         .x(function (d) { return d.key; })
         .y(function (d) { return d.y; })
-        .width(width)
-        .height(height)
         .labelType(function (d, i, values) {
           return values.key + ':' + values.value;
         })
@@ -217,8 +221,8 @@
       d3.select("#topLangagesUserChart")
         .datum([topLanguageUserData])
         .transition().duration(1200)
-        .attr('width', width)
-        .attr('height', height)
+        .attr('width', 200)
+        .attr('height', 200)
         .call(chart);
       return chart;
     });
@@ -228,16 +232,12 @@
       var chart = nv.models.discreteBarChart()
         .x(function (d) { return d.key; })
         .y(function (d) { return d.y; })
-        .width(1000)
-        .height(height)
         .showValues(true)
         .staggerLabels(true);
 
       d3.select("#topUserRepoChart")
         .datum([{values: topUserRepoData}])
         .transition().duration(1200)
-        .attr('width', width)
-        .attr('height', height)
         .call(chart);
       return chart;
     });
@@ -246,16 +246,12 @@
       var chart = nv.models.discreteBarChart()
         .x(function (d) { return d.key; })
         .y(function (d) { return d.y; })
-        .width(1000)
-        .height(height)
         .showValues(true)
         .staggerLabels(true);
 
       d3.select("#topOrgaRepoChart")
         .datum([{values: topOrgaRepoData}])
         .transition().duration(1200)
-        .attr('width', width)
-        .attr('height', height)
         .call(chart);
       return chart;
     });

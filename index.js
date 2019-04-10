@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser');
 
 const express = require("express"),
   app = express(),
-  config = require("./config.js"),
   port = process.env.PORT || 8080;
 
 app.use(cookieParser());
