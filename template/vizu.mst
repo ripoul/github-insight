@@ -52,7 +52,7 @@
 
     <div class="row">
       <div class="col">
-        <select id="language-select" onchange="selectLanguage(event)">
+        <select class="form-control" id="language-select" onchange="selectLanguage(event)" style="width:25%">
           {{#languages}}
           <option value="{{.}}">{{.}}</option>
           {{/languages}}
