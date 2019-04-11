@@ -1,8 +1,10 @@
-# Why
+# Github-Insights
+
+## Why
 
 This repository is a try to get insights on an GitHub organization and its members.
 
-# How
+## How
 
 Node11 is required ! Use nvm to change node version easly. Or you can use babel.
 
@@ -22,8 +24,12 @@ SENDGRID_SENDER=the email who send the notification
 ```
 If not, you can set environment variables. The variables has to be named like in the `.env` file.
 
-# Help
-## Docker
+## Examples
+
+You can have some example in `.github/examples`. [asking for scan]() and [the result of the scan]().
+
+## Help
+### Docker
 
 In the `docker-compose.yml` file, you need to complete the GITHUB_KEY, GITHUB_SECRET, SENDGRID_API_KEY, SENDGRID_SENDER environment variable.
 
@@ -31,7 +37,7 @@ In the `docker-compose.yml` file, you need to complete the GITHUB_KEY, GITHUB_SE
 sudo docker-compose rm --all && sudo  docker-compose pull && sudo  docker-compose build --no-cache && sudo docker-compose up --force-recreate
 ```
 
-## Gcloud
+### Gcloud
 We may be use gcloud to host our appli : 
 
 You have to uncoment the last line of the `Dockerfile`.
