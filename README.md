@@ -26,7 +26,11 @@ If not, you can set environment variables. The variables has to be named like in
 
 ## Examples
 
-You can have some example in `.github/examples`. [asking for scan]() and [the result of the scan]().
+You can have some example in `.github/examples`. 
+
+![asking for scan](https://github.com/ripoul/github-insights/blob/dev/.github/examples/demande-analyse.png)
+
+![the result of the scan](https://github.com/ripoul/github-insights/blob/dev/.github/examples/resultat.gif)
 
 ## Help
 ### Docker
