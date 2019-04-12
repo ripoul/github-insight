@@ -58,7 +58,7 @@
           {{/languages}}
         </select>
         <div class="card text-center">
-          <h5 class="card-title">Evolution du js dans l'organisation</h5>
+          <h5 class="card-title">Evolution du <span id="languageTitle"></span> dans l'organisation</h5>
           <div class="card-body"><svg id="EvolLangageChart"></svg></div>
         </div>
       </div>
@@ -81,6 +81,7 @@
 
     function selectLanguage(e) {
       changeLanguage(e.target.value);
+      document.getElementById("languageTitle").innerHTML = e.target.value;
     }
 
     function changeLanguage(language) {
@@ -257,6 +258,7 @@
     });
 
     changeLanguage(document.getElementById("language-select").value);
+    document.getElementById("languageTitle").innerHTML = document.getElementById("language-select").value;
   </script>
 </body>
 
