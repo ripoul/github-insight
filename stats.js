@@ -94,7 +94,7 @@ function getStats(members, organizationRepositories, githubOrganization) {
     obj[language] = count;
     return obj;
   });
-  
+
   ret.topOrgaUserRepo = stargazersForMembersOwnedRepositories.map(([repo, count]) => {
     let obj = {}
     obj[repo] = count

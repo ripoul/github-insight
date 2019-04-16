@@ -18,12 +18,12 @@ const clientdb = new Client({
   host: process.env.db_host,
   database: process.env.db_database,
   password: process.env.db_pass,
-  port:process.env.db_port
+  port: process.env.db_port
 })
 
-clientdb.connect().catch(error=>{
+clientdb.connect().catch(error => {
   console.log(error)
-  process.exit(1);clientdb
+  process.exit(1); clientdb
 });
 
 const githubOAuth = require('github-oauth')({
@@ -31,7 +31,8 @@ const githubOAuth = require('github-oauth')({
   githubSecret: process.env.GITHUB_SECRET,
   baseURL: process.env.adress,
   loginURI: '/auth/github',
-  callbackURI: '/auth/github/callback'
+  callbackURI: '/auth/github/callback',
+  scope: 'repo read:user read:org user:email'
 });
 
 function checkAuthentication(req, res, next) {
@@ -144,7 +145,7 @@ app.get('/vizu', function (req, res) {
     });
 })
 
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
   res.redirect("/demandeFichier");
 })
 

@@ -13,10 +13,10 @@ const clientdb = new Client({
   host: process.env.db_host,
   database: process.env.db_database,
   password: process.env.db_pass,
-  port:process.env.db_port
+  port: process.env.db_port
 })
 
-clientdb.connect().catch(error=>{
+clientdb.connect().catch(error => {
   console.log(error)
   process.exit(1);
 });
@@ -76,11 +76,11 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       body: {
         personalizations: [
           {
-            to: [{email: emailDemande}],
+            to: [{ email: emailDemande }],
             subject: 'github insight demande fini',
           },
         ],
-        from: {email: SENDGRID_SENDER},
+        from: { email: SENDGRID_SENDER },
         content: [
           {
             type: 'text/plain',
@@ -90,7 +90,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
         ],
       },
     });
-  
+
     Sendgrid.API(sgReq, err => {
       console.log(err)
     });
