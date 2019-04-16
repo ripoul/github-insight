@@ -31,8 +31,7 @@ const githubOAuth = require('github-oauth')({
   githubSecret: process.env.GITHUB_SECRET,
   baseURL: process.env.adress,
   loginURI: '/auth/github',
-  callbackURI: '/auth/github/callback',
-  scope: 'repo read:user read:org user:email'
+  callbackURI: '/auth/github/callback'
 });
 
 function checkAuthentication(req, res, next) {
@@ -56,7 +55,6 @@ githubOAuth.on('error', function (err) {
 });
 
 githubOAuth.on('token', function (token, serverResponse) {
-  console.log(token.access_token);
   serverResponse.cookie('token', token.access_token);
   serverResponse.redirect(`/demandeFichier`);
 });
