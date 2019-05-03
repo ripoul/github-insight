@@ -42,7 +42,7 @@ sudo docker-compose rm --all && sudo  docker-compose pull && sudo  docker-compos
 ```
 
 ### Gcloud
-We may be use gcloud to host our appli : 
+We may be use gcloud to host our app : 
 
 You have to uncoment the last line of the `Dockerfile`.
 
