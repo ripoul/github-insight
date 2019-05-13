@@ -35,7 +35,7 @@ const githubOAuth = require('github-oauth')({
 });
 
 function checkAuthentication(req, res, next) {
-  if (typeof req.cookies.token !== 'undefined') {
+  if (typeof req.cookies.githubToken !== 'undefined') {
     next();
   } else {
     res.redirect("/auth/github");
@@ -55,7 +55,7 @@ githubOAuth.on('error', function (err) {
 });
 
 githubOAuth.on('token', function (token, serverResponse) {
-  serverResponse.cookie('token', token.access_token);
+  serverResponse.cookie('githubToken', token.access_token);
   serverResponse.redirect(`/demandeFichier`);
 });
 
@@ -64,7 +64,7 @@ app.get('/demandeFichier', checkAuthentication, function (req, res) {
     username: "",
     email: ""
   };
-  return getUserInfo(req.cookies.token).then((response) => {
+  return getUserInfo(req.cookies.githubToken).then((response) => {
     view.username = response.data.viewer.login;
     view.email = response.data.viewer.email;
     var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
