@@ -12,9 +12,11 @@
 # below:
 .git
 .gitignore
+.github
 
 # Node.js dependencies:
 node_modules/
-.github/
-Dockerfile.save
+app/.env
+
+
 docker-compose.yml
