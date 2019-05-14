@@ -84,7 +84,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
         content: [
           {
             type: 'text/plain',
-            value: `demande completé ! Vous pouvez voir le resultat à cette adresse : ${urlVizu}
+            value: `demande completée ! Vous pouvez voir le resultat à cette adresse : ${urlVizu}
             Si vous voulez completer la recherche, dans la case clé, merci de mettre "${key}"`,
           },
         ],
@@ -92,7 +92,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
     });
 
     Sendgrid.API(sgReq, err => {
-      console.log(err)
+      console.log("erreur dans l'envoie de mail : "+ JSON.stringify(err))
     });
   }
 
@@ -118,7 +118,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
     members = await getMembers();
   } catch (e) {
     console.error('Error while fetching members', JSON.stringify(e, undefined, 2));
-    process.exit(1);
+    sendMailWhenError(email, e);
   }
   console.log(`Number of members: ${members.length}`);
   const membersInError = [];
@@ -141,6 +141,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       console.log('Error while fetching repositories', e);
       member.repositories = [];
       membersInError.push(member.login);
+      sendMailWhenError(email, e);
     }
 
     for (repository of member.repositories) {
@@ -152,6 +153,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
         console.log('repository', repository);
         console.log('Error while fetching contributors', e);
         repository.contributors = [];
+        sendMailWhenError(email, e);
       }
     }
   }
@@ -201,7 +203,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
       return res.data;
     } catch (e) {
       console.log(e);
-      process.exit(0);
+      sendMailWhenError(email, e);
     }
   }
 
@@ -243,6 +245,7 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
             `
           }).catch((error) => {
             console.log(error)
+            sendMailWhenError(email, error);
           });
 
         repositoriesEdges = response.data[field].repositories.edges
@@ -295,6 +298,32 @@ async function traitement(key, githubId, email, githubToken, githubOrganization)
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function sendMailWhenError(emailDemande, error) {
+  const sgReq = Sendgrid.emptyRequest({
+    method: 'POST',
+    path: '/v3/mail/send',
+    body: {
+      personalizations: [
+        {
+          to: [{ email: emailDemande }],
+          subject: ' 💀 ERROR  💀 github insight demande',
+        },
+      ],
+      from: { email: SENDGRID_SENDER },
+      content: [
+        {
+          type: 'text/plain',
+          value: `il y a eu une erreur pendant le traitement de votre demande. Merci de la refaire.\n      Here the stacktrace : \n ${JSON.stringify(error)}`,
+        },
+      ],
+    },
+  });
+
+  Sendgrid.API(sgReq, err => {
+    console.log("erreur dans l'envoie de mail : "+ JSON.stringify(err))
+  });
 }
 
 module.exports.traitement = traitement;
