@@ -89,7 +89,7 @@ app.get('/traitementDemande', checkAuthentication, function (req, res) {
   if (!key) {
     key = uuidv1();
   }
-  traitement(key, username, email, req.cookies.token, orga);
+  traitement(key, username, email, req.cookies.githubToken, orga);
   res.end("traitement en cours : vous receverez un mail");
   return;
 });
