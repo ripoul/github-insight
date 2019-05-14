@@ -18,12 +18,12 @@ const clientdb = new Client({
   host: process.env.db_host,
   database: process.env.db_database,
   password: process.env.db_pass,
-  port:process.env.db_port
+  port: process.env.db_port
 })
 
-clientdb.connect().catch(error=>{
+clientdb.connect().catch(error => {
   console.log(error)
-  process.exit(1);clientdb
+  process.exit(1); clientdb
 });
 
 const githubOAuth = require('github-oauth')({
@@ -35,7 +35,7 @@ const githubOAuth = require('github-oauth')({
 });
 
 function checkAuthentication(req, res, next) {
-  if (typeof req.cookies.token !== 'undefined') {
+  if (typeof req.cookies.githubToken !== 'undefined') {
     next();
   } else {
     res.redirect("/auth/github");
@@ -55,8 +55,7 @@ githubOAuth.on('error', function (err) {
 });
 
 githubOAuth.on('token', function (token, serverResponse) {
-  console.log(token.access_token);
-  serverResponse.cookie('token', token.access_token);
+  serverResponse.cookie('githubToken', token.access_token);
   serverResponse.redirect(`/demandeFichier`);
 });
 
@@ -65,7 +64,7 @@ app.get('/demandeFichier', checkAuthentication, function (req, res) {
     username: "",
     email: ""
   };
-  return getUserInfo(req.cookies.token).then((response) => {
+  return getUserInfo(req.cookies.githubToken).then((response) => {
     view.username = response.data.viewer.login;
     view.email = response.data.viewer.email;
     var output = Mustache.render(fs.readFileSync("./template/demandeFichier.mst", 'utf8'), view);
@@ -90,7 +89,7 @@ app.get('/traitementDemande', checkAuthentication, function (req, res) {
   if (!key) {
     key = uuidv1();
   }
-  traitement(key, username, email, req.cookies.token, orga);
+  traitement(key, username, email, req.cookies.githubToken, orga);
   res.end("traitement en cours : vous receverez un mail");
   return;
 });
@@ -144,7 +143,7 @@ app.get('/vizu', function (req, res) {
     });
 })
 
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
   res.redirect("/demandeFichier");
 })
 
