@@ -47,7 +47,7 @@ We may be use gcloud to host our app :
 You have to uncoment the last line of the `Dockerfile`.
 
 You also need a file name `app.yaml` with the folowing content : 
-```
+```yaml
 runtime: custom
 env: flex
 env_variables:
