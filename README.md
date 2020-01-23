@@ -28,9 +28,9 @@ If not, you can set environment variables. The variables has to be named like in
 
 You can have some example in `.github/examples`. 
 
-![asking for scan](https://github.com/ripoul/github-insights/blob/dev/.github/examples/demande-analyse.png)
+![asking for scan](https://github.com/ripoul/github-insights/blob/master/.github/examples/demande-analyse.png)
 
-![the result of the scan](https://github.com/ripoul/github-insights/blob/dev/.github/examples/resultat.gif)
+![the result of the scan](https://github.com/ripoul/github-insights/blob/master/.github/examples/resultat.gif)
 
 ## Help
 ### Docker
